@@ -11,7 +11,7 @@
   "dependencies": {
     "@fontsource/montserrat": "^5.1.0",
     "@primevue/themes": "^4.1.1",
-    "@tabler/icons": "^3.20.0",
+    "@tabler/icons-vue": "^3.20.0",
     "autoprefixer": "^10.4.20",
     "data_craft_core": "file:wasm_core/pkg",
     "pinia": "^2.2.4",
