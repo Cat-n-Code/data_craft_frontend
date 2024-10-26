@@ -2,6 +2,7 @@ import "@fontsource/montserrat";
 import { PrimeVue } from "@primevue/core";
 import { data_craft_init } from "data_craft_core";
 import { createPinia } from "pinia";
+import ConfirmationService from "primevue/confirmationservice";
 import { createApp } from "vue";
 import App from "./App.vue";
 import "./index.css";
@@ -28,5 +29,6 @@ app.use(PrimeVue, {
     },
   },
 });
+app.use(ConfirmationService);
 
 app.mount("#app");
