@@ -1,3 +1,4 @@
+import { Dataset } from "data_craft_core";
 import { defineStore } from "pinia";
 import { ref, Ref } from "vue";
 import { datasetsStoreName, filesStoreName, useDbStore } from "./db-store";
@@ -154,6 +155,20 @@ export const useDatasetsStore = defineStore("datasets", () => {
               ...datasets.value!,
               { id: addRequest.result as number, ...info },
             ];
+
+            loadFile(addRequest.result as number)
+              .then((file) => {
+                return file!.arrayBuffer();
+              })
+              .then((blob) => {
+                let ds = Dataset.load_from_csv(new Uint8Array(blob));
+                updateById(addRequest.result as number, {
+                  name: info.name,
+                  fieldsCount: ds.fields().length,
+                  rowsCount: ds.rows_count(),
+                });
+              });
+
             resolve();
           };
 
@@ -191,7 +206,7 @@ export const useDatasetsStore = defineStore("datasets", () => {
 
   async function updateById(
     id: number,
-    info: { name: string; fieldsCount: number }
+    info: { name: string; fieldsCount: number; rowsCount: number }
   ) {
     if (datasets.value === null) {
       await preload();
@@ -212,6 +227,7 @@ export const useDatasetsStore = defineStore("datasets", () => {
 
         dataset.name = info.name;
         dataset.fieldsCount = info.fieldsCount;
+        dataset.rowsCount = info.rowsCount;
 
         const updateRequest = store.put(dataset);
 

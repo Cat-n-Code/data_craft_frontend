@@ -2,10 +2,9 @@ use std::io::Cursor;
 
 use js_sys::Array;
 use polars::{
-    error::PolarsError,
     frame::DataFrame,
     io::SerReader,
-    prelude::{AnyValue, CsvParseOptions, CsvReadOptions, DataType, Null},
+    prelude::{AnyValue, CsvParseOptions, CsvReadOptions, DataType},
 };
 use wasm_bindgen::prelude::*;
 

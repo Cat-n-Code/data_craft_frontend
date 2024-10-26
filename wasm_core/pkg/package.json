@@ -1,0 +1,20 @@
+{
+  "name": "data_craft_core",
+  "type": "module",
+  "collaborators": [
+    "Arseny <arsuhinars@gmail.com>"
+  ],
+  "version": "0.1.0",
+  "files": [
+    "data_craft_core_bg.wasm",
+    "data_craft_core.js",
+    "data_craft_core_bg.js",
+    "data_craft_core.d.ts"
+  ],
+  "main": "data_craft_core.js",
+  "types": "data_craft_core.d.ts",
+  "sideEffects": [
+    "./data_craft_core.js",
+    "./snippets/*"
+  ]
+}
