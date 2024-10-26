@@ -9,6 +9,11 @@ export interface DatasetInfo {
   fileId: number;
 }
 
+interface DatasetFile {
+  id: number;
+  blob: Blob;
+}
+
 export const useDatasetStore = defineStore("datasets", () => {
   const datasets: Ref<DatasetInfo[] | null> = ref(null);
 
@@ -23,6 +28,41 @@ export const useDatasetStore = defineStore("datasets", () => {
       request.onsuccess = () => {
         datasets.value = request.result as DatasetInfo[];
         resolve(null);
+      };
+
+      request.onerror = (ev) => {
+        reject(ev);
+      };
+    });
+  }
+
+  async function loadFile(id: number): Promise<Blob | null> {
+    const db = await useDbStore().db();
+
+    return new Promise<Blob | null>((resolve, reject) => {
+      const t = db.transaction([datasetsStoreName, filesStoreName], "readonly");
+      const request = t.objectStore(datasetsStoreName).get(id);
+
+      request.onsuccess = () => {
+        const dataset = request.result as DatasetInfo | undefined;
+        if (!dataset) {
+          return resolve(null);
+        }
+
+        const fileRequest = t.objectStore(filesStoreName).get(dataset.fileId);
+
+        fileRequest.onsuccess = () => {
+          const fileEntry = fileRequest.result as DatasetFile | undefined;
+          if (!fileEntry) {
+            return resolve(null);
+          }
+
+          resolve(fileEntry.blob);
+        };
+
+        fileRequest.onerror = (ev) => {
+          reject(ev);
+        };
       };
 
       request.onerror = (ev) => {
@@ -228,5 +268,13 @@ export const useDatasetStore = defineStore("datasets", () => {
     });
   }
 
-  return { datasets, load, addEmpty, addFromFile, updateById, removeById };
+  return {
+    datasets,
+    load,
+    loadFile,
+    addEmpty,
+    addFromFile,
+    updateById,
+    removeById,
+  };
 });

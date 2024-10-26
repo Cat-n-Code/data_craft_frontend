@@ -1,11 +1,14 @@
 import "@fontsource/montserrat";
 import { PrimeVue } from "@primevue/core";
+import { data_craft_init } from "data_craft_core";
 import { createPinia } from "pinia";
 import { createApp } from "vue";
 import App from "./App.vue";
 import "./index.css";
 import router from "./router";
 import theme from "./theme";
+
+data_craft_init();
 
 const pinia = createPinia();
 const app = createApp(App);
