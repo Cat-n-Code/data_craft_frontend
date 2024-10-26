@@ -13,6 +13,7 @@
       ]"
     />
     <Toolbar />
+    <EditRow />
     <ContentContainer>
       <ActiveButtons></ActiveButtons>
       <Table></Table>
@@ -30,9 +31,11 @@ import ContentContainer from "../components/core/ContentContainer.vue";
 import HeaderContainer from "../components/core/HeaderComponent.vue";
 import MainContainer from "../components/core/MainContainer.vue";
 import Toolbar from "../components/core/ToolbarComponent.vue";
-import ActiveButtons from "../components/TablePage/ActiveButtons.vue";
-import Statistic from "../components/TablePage/Statistic.vue";
-import Table from "../components/TablePage/TableComponent.vue";
+import EditRow from "../components/TablePage/EditRow.vue";
+import {
+  default as Statistic,
+  default as Table,
+} from "../components/TablePage/TableComponent.vue";
 
 const router = useRouter();
 
