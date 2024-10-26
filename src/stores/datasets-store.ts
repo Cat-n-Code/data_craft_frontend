@@ -6,6 +6,7 @@ export interface DatasetInfo {
   id: number;
   name: string;
   fieldsCount: number;
+  rowsCount: number;
   fileId: number;
 }
 
@@ -14,10 +15,10 @@ interface DatasetFile {
   blob: Blob;
 }
 
-export const useDatasetStore = defineStore("datasets", () => {
+export const useDatasetsStore = defineStore("datasets", () => {
   const datasets: Ref<DatasetInfo[] | null> = ref(null);
 
-  async function load() {
+  async function preload() {
     const db = await useDbStore().db();
     return await new Promise((resolve, reject) => {
       let request = db
@@ -73,7 +74,7 @@ export const useDatasetStore = defineStore("datasets", () => {
 
   async function addEmpty() {
     if (datasets.value === null) {
-      await load();
+      await preload();
     }
 
     const db = await useDbStore().db();
@@ -90,6 +91,7 @@ export const useDatasetStore = defineStore("datasets", () => {
         const info = {
           name: "Новая таблица",
           fieldsCount: 0,
+          rowsCount: 0,
           fileId: request.result as number,
         };
         const addRequest = t.objectStore(datasetsStoreName).add(info);
@@ -115,7 +117,7 @@ export const useDatasetStore = defineStore("datasets", () => {
 
   async function addFromFile() {
     if (datasets.value === null) {
-      await load();
+      await preload();
     }
 
     const db = await useDbStore().db();
@@ -142,6 +144,7 @@ export const useDatasetStore = defineStore("datasets", () => {
           const info = {
             name: f.name,
             fieldsCount: 0,
+            rowsCount: 0,
             fileId: request.result as number,
           };
           const addRequest = t.objectStore(datasetsStoreName).add(info);
@@ -168,12 +171,30 @@ export const useDatasetStore = defineStore("datasets", () => {
     });
   }
 
+  async function getById(id: number) {
+    const db = await useDbStore().db();
+
+    return new Promise<DatasetInfo | null>((resolve, reject) => {
+      const t = db.transaction([datasetsStoreName, filesStoreName], "readonly");
+      const request = t.objectStore(datasetsStoreName).get(id);
+
+      request.onsuccess = () => {
+        const dataset = request.result as DatasetInfo | undefined;
+        resolve(!dataset ? null : dataset);
+      };
+
+      request.onerror = (ev) => {
+        reject(ev);
+      };
+    });
+  }
+
   async function updateById(
     id: number,
     info: { name: string; fieldsCount: number }
   ) {
     if (datasets.value === null) {
-      await load();
+      await preload();
     }
 
     const db = await useDbStore().db();
@@ -217,7 +238,7 @@ export const useDatasetStore = defineStore("datasets", () => {
 
   async function removeById(id: number) {
     if (datasets.value === null) {
-      await load();
+      await preload();
     }
 
     const db = await useDbStore().db();
@@ -270,10 +291,11 @@ export const useDatasetStore = defineStore("datasets", () => {
 
   return {
     datasets,
-    load,
+    preload,
     loadFile,
     addEmpty,
     addFromFile,
+    getById,
     updateById,
     removeById,
   };

@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
-import DatasetColumnsPage from "./pages/DatasetColumnsPage.vue";
+import DatasetFieldsPage from "./pages/DatasetFieldsPage.vue";
 import DatasetDashboardPage from "./pages/DatasetDashboardPage.vue";
 import DatasetListPage from "./pages/DatasetListPage.vue";
 import DatasetTablePage from "./pages/DatasetTablePage.vue";
@@ -7,26 +7,26 @@ import DatasetTablePage from "./pages/DatasetTablePage.vue";
 const routes: RouteRecordRaw[] = [
   {
     path: "/",
-    redirect: "/dataset/list",
+    redirect: "/datasets",
   },
   {
-    name: "dataset_list",
-    path: "/dataset/list",
+    name: "datasets_list",
+    path: "/datasets",
     component: DatasetListPage,
   },
   {
-    name: "dataset_columns",
-    path: "/dataset/columns",
-    component: DatasetColumnsPage,
+    name: "dataset_fields",
+    path: "/datasets/:id/fields",
+    component: DatasetFieldsPage,
   },
   {
     name: "dataset_table",
-    path: "/dataset/table",
+    path: "/datasets/:id/table",
     component: DatasetTablePage,
   },
   {
     name: "dataset_dashboard",
-    path: "/dataset/dashboard",
+    path: "/datasets/:id/dashboard",
     component: DatasetDashboardPage,
   },
 ];

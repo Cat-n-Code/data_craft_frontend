@@ -5,7 +5,7 @@
         {
           label: 'Таблицы',
           command: () => {
-            router.push({ name: 'dataset_list' });
+            router.push({ name: 'datasets_list' });
           },
         },
         { label: 'Название датасета' },

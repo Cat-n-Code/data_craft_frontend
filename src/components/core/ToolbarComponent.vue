@@ -2,9 +2,9 @@
   <div class="md:container mx-auto p-4 rounded-xl flex gap-4 bg-surface-0">
     <Button
       label="Типы данных"
-      :severity="route.name == 'dataset_columns' ? 'primary' : 'contrast'"
-      :outlined="route.name != 'dataset_columns'"
-      @click="router.push({ name: 'dataset_columns' })"
+      :severity="route.name == 'dataset_fields' ? 'primary' : 'contrast'"
+      :outlined="route.name != 'dataset_fields'"
+      @click="router.push({ name: 'dataset_fields' })"
     />
     <Button
       label="Таблица"

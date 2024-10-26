@@ -5,7 +5,7 @@
         {
           label: 'Таблицы',
           command: () => {
-            router.push({ name: 'dataset_list' });
+            router.push({ name: 'datasets_list' });
           },
         },
         { label: 'Название датасета' },
@@ -30,9 +30,6 @@ import ContentContainer from "../components/core/ContentContainer.vue";
 import HeaderContainer from "../components/core/HeaderComponent.vue";
 import MainContainer from "../components/core/MainContainer.vue";
 import Toolbar from "../components/core/ToolbarComponent.vue";
-import ActiveButtons from "../components/TablePage/ActiveButtons.vue";
-import Statistic from "../components/TablePage/Statistic.vue";
-import Table from "../components/TablePage/TableComponent.vue";
 
 const router = useRouter();
 
