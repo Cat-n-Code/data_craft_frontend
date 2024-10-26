@@ -2,9 +2,22 @@
   <MainContainer>
     <HeaderContainer :breadcrumb="[{ label: 'Таблицы' }]" />
     <ContentContainer>
-      <div class="flex gap-4 justify-center">
-        <Button label="Загрузить файл" severity="contrast" outlined />
-        <Button label="Создать пустой" severity="contrast" outlined />
+      <div class="flex gap-4 justify-end">
+        <Button
+          label="Загрузить файл"
+          severity="contrast"
+          outlined
+          icon-pos="right"
+        >
+          <template v-slot:icon>
+            <IconUpload />
+          </template>
+        </Button>
+        <Button label="Создать пустой" severity="contrast" outlined>
+          <template v-slot:icon>
+            <IconPlus />
+          </template>
+        </Button>
       </div>
       <div class="flex-grow block overflow-scroll relative">
         <DataTable
@@ -12,9 +25,12 @@
           scrollable
           class="absolute w-full"
           @row-click="onRowClick"
+          selection-mode="single"
         >
           <Column field="number" header="#"></Column>
-          <Column field="number" header="Название"></Column>
+          <Column field="title" header="Название"></Column>
+          <Column field="num_fields" header="Кол-во полей"></Column>
+          <Column field="num_num" header="Кол-во записей"></Column>
         </DataTable>
       </div>
     </ContentContainer>
@@ -24,6 +40,7 @@
 <style scoped></style>
 
 <script lang="ts" setup>
+import { IconPlus, IconUpload } from "@tabler/icons-vue";
 import Button from "primevue/button";
 import Column from "primevue/column";
 import DataTable from "primevue/datatable";
@@ -73,13 +90,6 @@ const datasets = ref([
   { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
   { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
 ]);
-
-const columns = [
-  { field: "number", header: "Порядковый номер" },
-  { field: "title", header: "Название" },
-  { field: "num_fields", header: "Количество полей" },
-  { field: "num_num", header: "Количество записей" },
-];
 
 function onRowClick(rowData: any) {
   console.log("Row clicked:", rowData);
