@@ -56,6 +56,12 @@ export class Dataset {
    */
   slice(start: number, end: number): Array<any>;
   /**
+   * @param {Array<any>} indexes
+   * @param {FieldAggregator} aggregator
+   * @returns {any}
+   */
+  aggregate_rows(indexes: Array<any>, aggregator: FieldAggregator): any;
+  /**
    * @param {Array<any>} data
    */
   add_row(data: Array<any>): void;

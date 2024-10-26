@@ -13,7 +13,7 @@
       ]"
     />
     <Navbar />
-    <ContentContainer>
+    <ContentContainer class="gap-2">
       <div class="flex gap-4 justify-end">
         <Button
           class="ai-gradient border-0"
@@ -76,7 +76,18 @@
             <span
               class="w-full whitespace-nowrap p-2 border-surface-300 border rounded-md flex justify-center items-center"
             >
-              <Checkbox class="mx-2" />
+              <Checkbox
+                class="mx-2"
+                v-model="selectedCols[field.index]"
+                binary
+                @change="(ev) => {
+                  if ((ev.target as HTMLInputElement).checked) {
+                    selectedCols[field.index] = true;
+                  } else {
+                    selectedCols[field.index] = false;
+                  }
+                }"
+              />
               <span>{{ field.name }}</span>
               <Button class="p-1 rounded-sm text-black" plain text>
                 <IconFilter />
@@ -117,6 +128,16 @@
           </template>
         </Column>
       </DataTable>
+      <div class="text-gray-500 flex mt-2">
+        Сумма: {{ sumValue?.toPrecision(3) ?? "-" }}
+        <Divider layout="vertical" /> Среднее:
+        {{ meanValue?.toPrecision(3) ?? "-" }}
+        <Divider layout="vertical" /> Минимум:
+        {{ minValue?.toPrecision(3) ?? "-" }}
+        <Divider layout="vertical" />
+        Максимум: {{ maxValue?.toPrecision(3) ?? "-" }}
+        <Divider layout="vertical" /> Количество: {{ countValue ?? "-" }}
+      </div>
       <Paginator
         v-model:first="rowsOffset"
         v-model:rows="rowsLimit"
@@ -139,20 +160,20 @@ import {
   IconSparkles,
   IconX,
 } from "@tabler/icons-vue";
+import { FieldAggregator } from "data_craft_core";
 import Button from "primevue/button";
 import Checkbox from "primevue/checkbox";
 import Column from "primevue/column";
 import DataTable from "primevue/datatable";
+import Divider from "primevue/divider";
 import Paginator from "primevue/paginator";
-import { Ref, ref, watchEffect } from "vue";
+import { Reactive, reactive, Ref, ref, watchEffect } from "vue";
 import { useRouter } from "vue-router";
 import ContentContainer from "../components/core/ContentContainer.vue";
 import HeaderContainer from "../components/core/HeaderComponent.vue";
 import MainContainer from "../components/core/MainContainer.vue";
-import Toolbar from "../components/core/ToolbarComponent.vue";
-import ActiveButtons from "../components/TablePage/ActiveButtons.vue";
-import Statistic from "../components/TablePage/Statistic.vue";
-import Table from "../components/TablePage/TableComponent.vue";
+import Navbar from "../components/core/Navbar.vue";
+import { useActiveDatasetStore } from "../stores/active-dataset-store";
 
 const router = useRouter();
 const store = useActiveDatasetStore();
@@ -161,6 +182,13 @@ const totalRows = ref(0);
 const rowsOffset = ref(0);
 const rowsLimit = ref(10);
 const data: Ref<any[][] | null> = ref(null);
+const selectedCols: Reactive<{ [key: number]: boolean }> = reactive({});
+
+const sumValue: Ref<number | null> = ref(null);
+const maxValue: Ref<number | null> = ref(null);
+const minValue: Ref<number | null> = ref(null);
+const meanValue: Ref<number | null> = ref(null);
+const countValue: Ref<number | null> = ref(null);
 
 watchEffect(() => {
   document.title =
@@ -176,6 +204,24 @@ watchEffect(() => {
   data.value = store.dataset.slice(
     rowsOffset.value ?? 0,
     rowsOffset.value + rowsLimit.value ?? 0
+  );
+});
+
+watchEffect(() => {
+  let indexes = Object.entries(selectedCols)
+    .filter(([_, v]) => v)
+    .map(([k, _]) => Number.parseInt(k) - 1);
+
+  sumValue.value = store.dataset?.aggregate_rows(indexes, FieldAggregator.Sum);
+  maxValue.value = store.dataset?.aggregate_rows(indexes, FieldAggregator.Max);
+  minValue.value = store.dataset?.aggregate_rows(indexes, FieldAggregator.Min);
+  meanValue.value = store.dataset?.aggregate_rows(
+    indexes,
+    FieldAggregator.Mean
+  );
+  countValue.value = store.dataset?.aggregate_rows(
+    indexes,
+    FieldAggregator.Count
   );
 });
 </script>

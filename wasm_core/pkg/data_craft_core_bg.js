@@ -4,6 +4,23 @@ export function __wbg_set_wasm(val) {
 }
 
 
+function isLikeNone(x) {
+    return x === undefined || x === null;
+}
+
+function _assertNum(n) {
+    if (typeof(n) !== 'number') throw new Error(`expected a number argument, found ${typeof(n)}`);
+}
+
+let cachedDataViewMemory0 = null;
+
+function getDataViewMemory0() {
+    if (cachedDataViewMemory0 === null || cachedDataViewMemory0.buffer.detached === true || (cachedDataViewMemory0.buffer.detached === undefined && cachedDataViewMemory0.buffer !== wasm.memory.buffer)) {
+        cachedDataViewMemory0 = new DataView(wasm.memory.buffer);
+    }
+    return cachedDataViewMemory0;
+}
+
 const lTextDecoder = typeof TextDecoder === 'undefined' ? (0, module.require)('util').TextDecoder : TextDecoder;
 
 let cachedTextDecoder = new lTextDecoder('utf-8', { ignoreBOM: true, fatal: true });
@@ -47,19 +64,6 @@ function takeFromExternrefTable0(idx) {
     const value = wasm.__wbindgen_export_0.get(idx);
     wasm.__externref_table_dealloc(idx);
     return value;
-}
-
-function _assertNum(n) {
-    if (typeof(n) !== 'number') throw new Error(`expected a number argument, found ${typeof(n)}`);
-}
-
-let cachedDataViewMemory0 = null;
-
-function getDataViewMemory0() {
-    if (cachedDataViewMemory0 === null || cachedDataViewMemory0.buffer.detached === true || (cachedDataViewMemory0.buffer.detached === undefined && cachedDataViewMemory0.buffer !== wasm.memory.buffer)) {
-        cachedDataViewMemory0 = new DataView(wasm.memory.buffer);
-    }
-    return cachedDataViewMemory0;
 }
 
 function getArrayJsValueFromWasm0(ptr, len) {
@@ -297,6 +301,18 @@ export class Dataset {
         return ret;
     }
     /**
+     * @param {Array<any>} indexes
+     * @param {FieldAggregator} aggregator
+     * @returns {any}
+     */
+    aggregate_rows(indexes, aggregator) {
+        if (this.__wbg_ptr == 0) throw new Error('Attempt to use a moved value');
+        _assertNum(this.__wbg_ptr);
+        _assertNum(aggregator);
+        const ret = wasm.dataset_aggregate_rows(this.__wbg_ptr, indexes, aggregator);
+        return ret;
+    }
+    /**
      * @param {Array<any>} data
      */
     add_row(data) {
@@ -415,6 +431,16 @@ export class FieldInfo {
     }
 }
 
+export function __wbindgen_number_get(arg0, arg1) {
+    const obj = arg1;
+    const ret = typeof(obj) === 'number' ? obj : undefined;
+    if (!isLikeNone(ret)) {
+        _assertNum(ret);
+    }
+    getDataViewMemory0().setFloat64(arg0 + 8 * 1, isLikeNone(ret) ? 0 : ret, true);
+    getDataViewMemory0().setInt32(arg0 + 4 * 0, !isLikeNone(ret), true);
+};
+
 export function __wbindgen_number_new(arg0) {
     const ret = arg0;
     return ret;
@@ -526,6 +552,12 @@ export function __wbg_get_5419cf6b954aa11d() { return logError(function (arg0, a
     return ret;
 }, arguments) };
 
+export function __wbg_length_f217bbbf7e8e4df4() { return logError(function (arg0) {
+    const ret = arg0.length;
+    _assertNum(ret);
+    return ret;
+}, arguments) };
+
 export function __wbg_push_36cf4d81d7da33d1() { return logError(function (arg0, arg1) {
     const ret = arg0.push(arg1);
     _assertNum(ret);
@@ -544,6 +576,11 @@ export function __wbg_call_a9ef466721e824f2() { return handleError(function (arg
 
 export function __wbg_call_3bfa248576352471() { return handleError(function (arg0, arg1, arg2) {
     const ret = arg0.call(arg1, arg2);
+    return ret;
+}, arguments) };
+
+export function __wbg_new_6fb55f037293191b() { return logError(function (arg0) {
+    const ret = new Date(arg0);
     return ret;
 }, arguments) };
 

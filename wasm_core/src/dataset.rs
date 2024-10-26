@@ -8,7 +8,10 @@ use polars::{
 };
 use wasm_bindgen::prelude::*;
 
-use crate::field::{FieldInfo, FieldType};
+use crate::{
+    field::{FieldAggregator, FieldInfo, FieldType},
+    utils::any_value_to_js_value,
+};
 
 #[wasm_bindgen]
 pub struct Dataset {
@@ -46,7 +49,7 @@ impl Dataset {
                 DataType::String => FieldType::Text,
                 DataType::Date => FieldType::Date,
                 DataType::Time => FieldType::Time,
-                DataType::Datetime(u, name) => FieldType::DateTime,
+                DataType::Datetime(_, _) => FieldType::DateTime,
                 _ => {
                     return Err("Unsupported data type".into());
                 }
@@ -112,21 +115,7 @@ impl Dataset {
         for col in self.df.get_columns() {
             let slice = col.slice(start as i64, end - start);
             for (i, v) in slice.iter().enumerate() {
-                let val = match v {
-                    AnyValue::String(s) => s.into(),
-                    AnyValue::UInt8(i) => i.into(),
-                    AnyValue::UInt16(i) => i.into(),
-                    AnyValue::UInt32(i) => i.into(),
-                    AnyValue::UInt64(i) => i.into(),
-                    AnyValue::Int8(i) => i.into(),
-                    AnyValue::Int16(i) => i.into(),
-                    AnyValue::Int32(i) => i.into(),
-                    AnyValue::Int64(i) => i.into(),
-                    AnyValue::Float32(f) => f.into(),
-                    AnyValue::Float64(f) => f.into(),
-                    // TODO: datetime types
-                    _ => JsValue::null(),
-                };
+                let val = any_value_to_js_value(v);
                 let arr_value = rows.get(i as u32);
                 let arr: &Array = arr_value.unchecked_ref();
                 arr.push(&val);
@@ -134,6 +123,81 @@ impl Dataset {
         }
 
         rows
+    }
+
+    pub fn aggregate_rows(&self, indexes: Array, aggregator: FieldAggregator) -> JsValue {
+        let cols = self.df.get_columns();
+        match aggregator {
+            FieldAggregator::Count => {
+                let mut count = 0;
+                for i in indexes {
+                    let i = i.as_f64().unwrap() as usize;
+                    let nulls = cols[i].null_count();
+                    count += cols[i].len() - nulls;
+                }
+                count.into()
+            }
+            FieldAggregator::Min => {
+                // TODO: case for datetime
+                let mut min = None;
+                for i in indexes {
+                    let i = i.as_f64().unwrap() as usize;
+                    if let Some(val) = cols[i].min::<f64>().unwrap_or(None) {
+                        match min {
+                            Some(min_val) => min = Some(val.min(min_val)),
+                            None => min = Some(val),
+                        }
+                    }
+                }
+
+                min.into()
+            }
+            FieldAggregator::Max => {
+                // TODO: case for datetime
+                let mut max = None;
+                for i in indexes {
+                    let i = i.as_f64().unwrap() as usize;
+                    if let Some(val) = cols[i].max::<f64>().unwrap_or(None) {
+                        match max {
+                            Some(max_val) => max = Some(val.max(max_val)),
+                            None => max = Some(val),
+                        }
+                    }
+                }
+
+                max.into()
+            }
+            FieldAggregator::Sum => {
+                let mut sum = None;
+                for i in indexes {
+                    let i = i.as_f64().unwrap() as usize;
+                    if let Ok(val) = cols[i].sum::<f64>() {
+                        match sum {
+                            Some(sum_val) => sum = Some(sum_val + val),
+                            None => sum = Some(val),
+                        }
+                    }
+                }
+
+                sum.into()
+            }
+            FieldAggregator::Mean => {
+                let mut sum = None;
+                let mut count = 0;
+                for i in indexes {
+                    let i = i.as_f64().unwrap() as usize;
+                    if let Ok(val) = cols[i].sum::<f64>() {
+                        count += cols[i].len() - cols[i].null_count();
+                        match sum {
+                            Some(sum_val) => sum = Some(sum_val + val),
+                            None => sum = Some(val),
+                        }
+                    }
+                }
+
+                sum.map(|val| val / count as f64).into()
+            }
+        }
     }
 
     pub fn add_row(&self, data: Array) {

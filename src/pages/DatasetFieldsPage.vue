@@ -72,6 +72,7 @@
       </DataTable>
     </ContentContainer>
   </MainContainer>
+  <FieldEditDialog :visible="false" />
 </template>
 
 <style scoped></style>
@@ -89,6 +90,7 @@ import ContentContainer from "../components/core/ContentContainer.vue";
 import HeaderContainer from "../components/core/HeaderComponent.vue";
 import MainContainer from "../components/core/MainContainer.vue";
 import Toolbar from "../components/core/Navbar.vue";
+import FieldEditDialog from "../components/dialogs/FieldEditDialog.vue";
 import { useActiveDatasetStore } from "../stores/active-dataset-store";
 
 const router = useRouter();
@@ -96,13 +98,11 @@ const store = useActiveDatasetStore();
 const confirm = useConfirm();
 
 function onRemoveClick(index: number) {
-  console.log(index);
   confirm.require({
     header: "Удаление",
     message: `Вы уверены, что хотите удалить поле "${
       store.fields![index].name
-    }"? Это действие необратимо.`,
-    icon: "pi pi-exclamation-triangle",
+    }"? Это действие необратимо!`,
     rejectProps: {
       label: "Отмена",
       severity: "secondary",
@@ -113,6 +113,11 @@ function onRemoveClick(index: number) {
     },
     accept: () => {
       store.dataset?.remove_field(index);
+      store.fields?.splice(index, 1);
+
+      for (let i = index; i < store.fields!.length; ++i) {
+        store.fields![i].index -= 1;
+      }
     },
     reject: () => {},
   });

@@ -2,6 +2,7 @@ use wasm_bindgen::prelude::*;
 
 mod dataset;
 mod field;
+mod utils;
 
 #[wasm_bindgen]
 pub fn data_craft_init() {

@@ -4,6 +4,13 @@ import { computed, Ref, ref, watchEffect } from "vue";
 import { useRoute } from "vue-router";
 import { DatasetInfo, useDatasetsStore } from "./datasets-store";
 
+export interface FieldInfo {
+  index: number;
+  name: string;
+  dataTypeName: string;
+  isRequired: boolean;
+}
+
 const dataTypeNames = {
   [FieldType.Text]: "Текстовый",
   [FieldType.Integer]: "Целочисленный",
@@ -22,18 +29,7 @@ export const useActiveDatasetStore = defineStore("activeDataset", () => {
   });
   const datasetInfo: Ref<DatasetInfo | null> = ref(null);
   const dataset: Ref<Dataset | null> = ref(null);
-  const fields = computed(() =>
-    dataset.value == null
-      ? null
-      : dataset.value.fields().map((info, index) => {
-          return {
-            index: index + 1,
-            name: info.name(),
-            dataTypeName: dataTypeNames[info.date_type()],
-            isRequired: info.is_required(),
-          };
-        })
-  );
+  const fields: Ref<FieldInfo[] | null> = ref(null);
 
   watchEffect(async () => {
     if (datasetId.value == null) {
@@ -62,6 +58,14 @@ export const useActiveDatasetStore = defineStore("activeDataset", () => {
     }
 
     dataset.value = Dataset.load_from_csv(buf);
+    fields.value = dataset.value.fields().map((info, index) => {
+      return {
+        index: index + 1,
+        name: info.name(),
+        dataTypeName: dataTypeNames[info.date_type()],
+        isRequired: info.is_required(),
+      };
+    });
   });
 
   return { datasetId, datasetInfo, dataset, fields };

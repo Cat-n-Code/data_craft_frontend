@@ -11,6 +11,7 @@ export function dataset_swap_fields(a: number, b: number, c: number): void;
 export function dataset_remove_field(a: number, b: number): void;
 export function dataset_rows_count(a: number): number;
 export function dataset_slice(a: number, b: number, c: number): number;
+export function dataset_aggregate_rows(a: number, b: number, c: number): number;
 export function dataset_add_row(a: number, b: number): void;
 export function dataset_update_row(a: number, b: number, c: number): void;
 export function dataset_swap_rows(a: number, b: number, c: number): void;
