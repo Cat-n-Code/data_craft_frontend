@@ -4,9 +4,10 @@ use js_sys::Array;
 use polars::{
     frame::DataFrame,
     io::SerReader,
-    prelude::{AnyValue, CsvParseOptions, CsvReadOptions, DataType},
+    prelude::{CsvParseOptions, CsvReadOptions, DataType},
 };
 use wasm_bindgen::prelude::*;
+use web_sys::console;
 
 use crate::{
     field::{FieldAggregator, FieldInfo, FieldType},
@@ -197,6 +198,18 @@ impl Dataset {
 
                 sum.map(|val| val / count as f64).into()
             }
+        }
+    }
+
+    pub fn distinct_values(&self, field_index: usize, max_count: usize) -> Option<Array> {
+        if let Ok(values) = self.df.get_columns()[field_index].unique() {
+            let arr = Array::new();
+            for v in values.rechunk().iter().take(max_count) {
+                arr.push(&any_value_to_js_value(v));
+            }
+            Some(arr)
+        } else {
+            None
         }
     }
 

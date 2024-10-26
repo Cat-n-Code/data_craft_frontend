@@ -89,7 +89,25 @@
                 }"
               />
               <span>{{ field.name }}</span>
-              <Button class="p-1 rounded-sm text-black" plain text>
+              <Button
+                class="p-1 rounded-sm text-black"
+                plain
+                text
+                @click="
+                  (ev) => {
+                    popoverFieldIndex = field.index - 1;
+                    switch (field.dataType) {
+                      case FieldType.Integer:
+                      case FieldType.Float:
+                        numberFieldPopover?.popover?.toggle(ev);
+                        break;
+                      case FieldType.Text:
+                        textFieldPopover?.popover?.toggle(ev);
+                        break;
+                    }
+                  }
+                "
+              >
                 <IconFilter />
               </Button>
               <Button class="p-1 rounded-sm text-black" plain text>
@@ -129,13 +147,13 @@
         </Column>
       </DataTable>
       <div class="text-gray-500 flex mt-2">
-        Сумма: {{ sumValue?.toPrecision(3) ?? "-" }}
+        Сумма: {{ sumValue?.toFixed(2) ?? "-" }}
         <Divider layout="vertical" /> Среднее:
-        {{ meanValue?.toPrecision(3) ?? "-" }}
+        {{ meanValue?.toFixed(2) ?? "-" }}
         <Divider layout="vertical" /> Минимум:
-        {{ minValue?.toPrecision(3) ?? "-" }}
+        {{ minValue?.toFixed(2) ?? "-" }}
         <Divider layout="vertical" />
-        Максимум: {{ maxValue?.toPrecision(3) ?? "-" }}
+        Максимум: {{ maxValue?.toFixed(2) ?? "-" }}
         <Divider layout="vertical" /> Количество: {{ countValue ?? "-" }}
       </div>
       <Paginator
@@ -146,6 +164,25 @@
       ></Paginator>
     </ContentContainer>
   </MainContainer>
+
+  <NumberFieldPopover
+    ref="numberFieldPopover"
+    :values="
+      popoverFieldIndex != null && [FieldType.Integer, FieldType.Float].includes(store.fields![popoverFieldIndex].dataType) 
+        ? store.dataset?.distinct_values(popoverFieldIndex, 10) as number[]
+        : []
+    "
+    @hide="() => (popoverFieldIndex = null)"
+  />
+  <TextFieldPopover
+    ref="textFieldPopover"
+    :values="
+      popoverFieldIndex != null && store.fields![popoverFieldIndex].dataType == FieldType.Text
+        ? store.dataset?.distinct_values(popoverFieldIndex, 10) as string[]
+        : []
+    "
+    @hide="() => (popoverFieldIndex = null)"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -160,29 +197,37 @@ import {
   IconSparkles,
   IconX,
 } from "@tabler/icons-vue";
-import { FieldAggregator } from "data_craft_core";
+import { FieldAggregator, FieldType } from "data_craft_core";
 import Button from "primevue/button";
 import Checkbox from "primevue/checkbox";
 import Column from "primevue/column";
 import DataTable from "primevue/datatable";
 import Divider from "primevue/divider";
 import Paginator from "primevue/paginator";
-import { Reactive, reactive, Ref, ref, watchEffect } from "vue";
+import { Reactive, reactive, Ref, ref, useTemplateRef, watchEffect } from "vue";
 import { useRouter } from "vue-router";
 import ContentContainer from "../components/core/ContentContainer.vue";
 import HeaderContainer from "../components/core/HeaderComponent.vue";
 import MainContainer from "../components/core/MainContainer.vue";
 import Navbar from "../components/core/Navbar.vue";
+import NumberFieldPopover from "../components/popovers/NumberFieldPopover.vue";
+import TextFieldPopover from "../components/popovers/TextFieldPopover.vue";
 import { useActiveDatasetStore } from "../stores/active-dataset-store";
 
 const router = useRouter();
 const store = useActiveDatasetStore();
+const numberFieldPopover =
+  useTemplateRef<InstanceType<typeof NumberFieldPopover>>("numberFieldPopover");
+const textFieldPopover =
+  useTemplateRef<InstanceType<typeof NumberFieldPopover>>("textFieldPopover");
+const popoverFieldIndex = ref<number | null>(null);
 
 const totalRows = ref(0);
 const rowsOffset = ref(0);
 const rowsLimit = ref(10);
 const data: Ref<any[][] | null> = ref(null);
 const selectedCols: Reactive<{ [key: number]: boolean }> = reactive({});
+const fieldsStates = reactive({});
 
 const sumValue: Ref<number | null> = ref(null);
 const maxValue: Ref<number | null> = ref(null);

@@ -313,6 +313,19 @@ export class Dataset {
         return ret;
     }
     /**
+     * @param {number} field_index
+     * @param {number} max_count
+     * @returns {Array<any> | undefined}
+     */
+    distinct_values(field_index, max_count) {
+        if (this.__wbg_ptr == 0) throw new Error('Attempt to use a moved value');
+        _assertNum(this.__wbg_ptr);
+        _assertNum(field_index);
+        _assertNum(max_count);
+        const ret = wasm.dataset_distinct_values(this.__wbg_ptr, field_index, max_count);
+        return ret;
+    }
+    /**
      * @param {Array<any>} data
      */
     add_row(data) {

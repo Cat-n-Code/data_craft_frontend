@@ -31,7 +31,7 @@ impl TryFrom<DataType> for FieldType {
             DataType::String => Ok(FieldType::Text),
             DataType::Date => Ok(FieldType::Date),
             DataType::Time => Ok(FieldType::Time),
-            DataType::Datetime(u, name) => Ok(FieldType::DateTime),
+            DataType::Datetime(_, _) => Ok(FieldType::DateTime),
             _ => Err("Unsupported data type".into()),
         }
     }

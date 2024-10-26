@@ -1,4 +1,4 @@
-use js_sys::{Date, Number};
+use js_sys::Date;
 use polars::prelude::AnyValue;
 use wasm_bindgen::JsValue;
 
@@ -17,7 +17,7 @@ pub fn any_value_to_js_value(any_value: AnyValue) -> JsValue {
         AnyValue::Float64(f) => f.into(),
         AnyValue::Date(d) => Date::new(&(d as f64 * 24.0 * 3600.0 * 1000.0).into()).into(),
         AnyValue::Time(t) => Date::new(&(t as f64 / 1000.0).into()).into(),
-        AnyValue::Datetime(t, unit, name) => Date::new(&(t as f64 / 1000.0).into()).into(),
+        AnyValue::Datetime(t, _, _) => Date::new(&(t as f64 / 1000.0).into()).into(),
         _ => JsValue::null(),
     }
 }

@@ -7,6 +7,7 @@ import { DatasetInfo, useDatasetsStore } from "./datasets-store";
 export interface FieldInfo {
   index: number;
   name: string;
+  dataType: FieldType;
   dataTypeName: string;
   isRequired: boolean;
 }
@@ -62,6 +63,7 @@ export const useActiveDatasetStore = defineStore("activeDataset", () => {
       return {
         index: index + 1,
         name: info.name(),
+        dataType: info.date_type(),
         dataTypeName: dataTypeNames[info.date_type()],
         isRequired: info.is_required(),
       };

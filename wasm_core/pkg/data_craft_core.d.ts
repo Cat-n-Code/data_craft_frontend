@@ -62,6 +62,12 @@ export class Dataset {
    */
   aggregate_rows(indexes: Array<any>, aggregator: FieldAggregator): any;
   /**
+   * @param {number} field_index
+   * @param {number} max_count
+   * @returns {Array<any> | undefined}
+   */
+  distinct_values(field_index: number, max_count: number): Array<any> | undefined;
+  /**
    * @param {Array<any>} data
    */
   add_row(data: Array<any>): void;
