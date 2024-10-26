@@ -149,8 +149,10 @@ import { useRouter } from "vue-router";
 import ContentContainer from "../components/core/ContentContainer.vue";
 import HeaderContainer from "../components/core/HeaderComponent.vue";
 import MainContainer from "../components/core/MainContainer.vue";
-import Navbar from "../components/core/Navbar.vue";
-import { useActiveDatasetStore } from "../stores/active-dataset-store";
+import Toolbar from "../components/core/ToolbarComponent.vue";
+import ActiveButtons from "../components/TablePage/ActiveButtons.vue";
+import Statistic from "../components/TablePage/Statistic.vue";
+import Table from "../components/TablePage/TableComponent.vue";
 
 const router = useRouter();
 const store = useActiveDatasetStore();
