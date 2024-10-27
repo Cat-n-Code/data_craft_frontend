@@ -375,8 +375,9 @@ const router = useRouter();
 const finalExample = ref(
   [["Задача", "Подзадача", "Дефект", "История", "Эпик"],
   [238, 4510, 4485, 1006, 3],
-  "pie"
-])
+  "line"
+]
+)
 const ChartEx1 = ref()
 const ChartData1 = ref();
 const ChartData2 = ref();
