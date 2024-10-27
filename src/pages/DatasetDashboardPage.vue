@@ -12,7 +12,7 @@
         { label: 'Дашборды' },
       ]"
     />
-    <!-- <Toolbar /> -->
+    <Navbar />
 
     <ContentContainer>
       <div class="flex gap-4 justify-end">
@@ -107,6 +107,7 @@ import ContentContainer from "../components/core/ContentContainer.vue";
 import HeaderContainer from "../components/core/HeaderComponent.vue";
 import MainContainer from "../components/core/MainContainer.vue";
 import FilterDialog from "../components/dialogs/FilterDialog.vue";
+import Navbar from "../components/core/Navbar.vue";
 
 const diagramDialog =
   useTemplateRef<InstanceType<typeof FilterDialog>>("diagramDialog");
@@ -156,12 +157,12 @@ const data_example_for_chart5 = ref({
   labels: ["Низкий", "Средний", "Высокий", "Критический"],
   data: [1207, 8200, 2215, 768],
 });
-const finalParser = (data: any[]) => {
+const finalParser = (data: any) => {
   return {
-    labels: data[0],
+    labels: data.xValues,
     datasets: [
       {
-        data: data[1],
+        data: data.yValues,
         backgroundColor: [
           "rgba(218, 225, 249, 1)",
           "rgba(235, 237, 240, 1)",
@@ -381,12 +382,14 @@ watchEffect(() => {
 });
 const router = useRouter();
 
-const finalExample = ref(
-  [["Задача", "Подзадача", "Дефект", "История", "Эпик"],
-  [238, 4510, 4485, 1006, 3],
-  "line"
-]
-)
+const finalExample = ref()
+
+import { DiagramType, useDashboardStore } from "../stores/dashboard-store.ts";
+import Toolbar from "primevue/toolbar";
+const dashboardStore = useDashboardStore();
+watchEffect(() => {
+  finalExample.value = dashboardStore.dashboards;
+})
 const ChartEx1 = ref()
 const ChartData1 = ref();
 const ChartData2 = ref();
@@ -395,12 +398,30 @@ const ChartData4 = ref();
 const ChartData5 = ref();
 const charts = ref([finalExample]);
 let charts_real = ref()
-onMounted(() => {
+watchEffect(() => {
   let arr = []
-  for (let i = 0;i<charts.value.length;i++) {
-    arr.push({data: finalParser(charts.value[i].value), type: charts.value[i].value[2]});
+  for (let i = 0;i<dashboardStore.dashboards.length;i++) {
+    let t;
+    switch (dashboardStore.dashboards[i].type) {
+      case DiagramType.BAR:
+          t = "bar";
+          break;
+        case DiagramType.LINE:
+          t = "line";
+          break;
+        case DiagramType.PIE:
+          t= "pie";
+          break;
+        case DiagramType.RADAR:
+          t = "radar";
+          break;
+    }
+    arr.push({data: finalParser(dashboardStore.dashboards[i]), type: t});
   }
   charts_real.value = arr;
+})
+onMounted(() => {
+  
   console.log(charts_real);
 
   ChartEx1.value = finalParser(finalExample.value)
