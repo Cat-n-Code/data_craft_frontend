@@ -27,6 +27,12 @@
         <div
           class="card flex flex-col grow absolute w-full justify-center gap-20"
         >
+        
+        <div v-for="chart in charts" class="card w-full">
+          <Chart v-if="chart.type=='bar'||chart.type=='line' " :type="chart.type" :data="chart.data" :options="barChartOptions" />
+          <Chart v-if="chart.type=='pie'" :type="chart.type" :data="chart.data" :options="pieChartOptions" />
+          <Chart v-if="chart.type=='radar'" :type="chart.type" :data="chart.data" :options="radarChartOptions" />
+        </div>
           <div class="card w-full">
             <Chart type="bar" :data="ChartData1" :options="barChartOptions" />
           </div>
@@ -107,6 +113,10 @@ import FilterDialog from "../components/dialogs/FilterDialog.vue"
 import Button from "primevue/button";
 
 const barChartOptions = ref();
+const finalExample = ref(
+  {labels: ["Задача", "Подзадача", "Дефект", "История", "Эпик"],
+  data: [238, 4510, 4485, 1006, 3],
+})
 const data_example_for_chart1 = ref({
   name: "Количество задач по типу",
   labels: ["Задача", "Подзадача", "Дефект", "История", "Эпик"],
@@ -151,7 +161,36 @@ const data_example_for_chart5 = ref({
   labels: ["Низкий", "Средний", "Высокий", "Критический"],
   data: [1207, 8200, 2215, 768],
 });
-
+const finalParser = (data: {
+  labels: string[];
+  data: number[];
+}) => {
+  return {
+    labels: data.labels,
+    datasets: [
+      {
+        data: data.data,
+        backgroundColor: [
+          "rgba(218, 225, 249, 0.8)",
+          "rgba(235, 237, 240, 0.8)",
+          "rgb(182, 194, 201, 0.8)",
+          "rgba(200, 236, 121, 0.8)",
+          "rgba(186, 230, 251, 0.8)",
+          "rgba(176, 182, 240, 0.8)",
+        ],
+        borderColor: [
+          "rgba(218, 225, 249, 1)",
+          "rgba(235, 237, 240, 1)",
+          "rgb(182, 194, 201, 1)",
+          "rgba(200, 236, 121, 1)",
+          "rgba(186, 230, 251, 1)",
+          "rgba(176, 182, 240, 1)",
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
+};
 const setChartData = (data: {
   name: string;
   labels: string[];
@@ -231,7 +270,6 @@ const setChartComboData = (data: {
   };
 };
 const chartDataCombo = ref();
-const chartOptionsCombo = ref();
 
 const setChartDataCombo = () => {
   const documentStyle = getComputedStyle(document.documentElement);
@@ -304,87 +342,9 @@ const setChartOptions = () => {
     },
   };
 };
-const setChartOptionsCombo = () => {
-  const documentStyle = getComputedStyle(document.documentElement);
-  const textColor = documentStyle.getPropertyValue("--p-text-color");
-  const textColorSecondary = documentStyle.getPropertyValue(
-    "--p-text-muted-color"
-  );
-  const surfaceBorder = documentStyle.getPropertyValue(
-    "--p-content-border-color"
-  );
-
-  return {
-    maintainAspectRatio: false,
-    aspectRatio: 0.6,
-    plugins: {
-      legend: {
-        labels: {
-          color: textColor,
-        },
-      },
-    },
-    scales: {
-      x: {
-        ticks: {
-          color: textColorSecondary,
-        },
-        grid: {
-          color: surfaceBorder,
-        },
-      },
-      y: {
-        ticks: {
-          color: textColorSecondary,
-        },
-        grid: {
-          color: surfaceBorder,
-        },
-      },
-    },
-  };
-};
-
-const chartDataRadar = ref();
 const pieChartOptions = ref();
 const radarChartOptions = ref();
 
-const setChartDataRadar = () => {
-  const documentStyle = getComputedStyle(document.documentElement);
-  const textColor = documentStyle.getPropertyValue("--p-text-color");
-
-  return {
-    labels: [
-      "Eating",
-      "Drinking",
-      "Sleeping",
-      "Designing",
-      "Coding",
-      "Cycling",
-      "Running",
-    ],
-    datasets: [
-      {
-        label: "My First dataset",
-        borderColor: documentStyle.getPropertyValue("--p-gray-400"),
-        pointBackgroundColor: documentStyle.getPropertyValue("--p-gray-400"),
-        pointBorderColor: documentStyle.getPropertyValue("--p-gray-400"),
-        pointHoverBackgroundColor: textColor,
-        pointHoverBorderColor: documentStyle.getPropertyValue("--p-gray-400"),
-        data: [65, 59, 90, 81, 56, 55, 40],
-      },
-      {
-        label: "My Second dataset",
-        borderColor: documentStyle.getPropertyValue("--p-pink-400"),
-        pointBackgroundColor: documentStyle.getPropertyValue("--p-pink-400"),
-        pointBorderColor: documentStyle.getPropertyValue("--p-pink-400"),
-        pointHoverBackgroundColor: textColor,
-        pointHoverBorderColor: documentStyle.getPropertyValue("--p-pink-400"),
-        data: [28, 48, 40, 19, 96, 27, 100],
-      },
-    ],
-  };
-};
 const setPieChartOptions = () => {
   const documentStyle = getComputedStyle(document.documentElement);
   const textColor = documentStyle.getPropertyValue("--p-text-color");
@@ -429,12 +389,16 @@ watchEffect(() => {
 });
 const router = useRouter();
 
+const ChartEx1 = ref()
+const ChartEx2 = ref()
 const ChartData1 = ref();
 const ChartData2 = ref();
 const ChartData3 = ref();
 const ChartData4 = ref();
 const ChartData5 = ref();
+const charts = ref([{data: ChartEx1, type: "line"}, {data: ChartData2, type: "radar"},]);
 onMounted(() => {
+  ChartEx1.value = finalParser(finalExample.value)
   ChartData1.value = setChartData(data_example_for_chart1.value);
   ChartData2.value = setChartData(data_example_for_chart2.value);
   ChartData3.value = setChartComboData(data_example_for_chart3.value);
@@ -442,8 +406,6 @@ onMounted(() => {
   ChartData5.value = setChartData(data_example_for_chart5.value);
   barChartOptions.value = setChartOptions();
   chartDataCombo.value = setChartDataCombo();
-  chartOptionsCombo.value = setChartOptionsCombo();
-  chartDataRadar.value = setChartDataRadar();
   pieChartOptions.value = setPieChartOptions();
   radarChartOptions.value = setRadarChartOptions();
 });
