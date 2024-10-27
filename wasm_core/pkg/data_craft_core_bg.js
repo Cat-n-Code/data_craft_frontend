@@ -398,16 +398,18 @@ export class Dataset {
         return ret;
     }
     /**
-     * @param {number} field_index
+     * @param {number} group_field_index
+     * @param {number} aggregate_field_index
      * @param {FieldAggregator} aggregator
-     * @returns {Map<any, any>}
+     * @returns {Array<any>}
      */
-    group_rows(field_index, aggregator) {
+    group_rows(group_field_index, aggregate_field_index, aggregator) {
         if (this.__wbg_ptr == 0) throw new Error('Attempt to use a moved value');
         _assertNum(this.__wbg_ptr);
-        _assertNum(field_index);
+        _assertNum(group_field_index);
+        _assertNum(aggregate_field_index);
         _assertNum(aggregator);
-        const ret = wasm.dataset_group_rows(this.__wbg_ptr, field_index, aggregator);
+        const ret = wasm.dataset_group_rows(this.__wbg_ptr, group_field_index, aggregate_field_index, aggregator);
         return ret;
     }
     /**

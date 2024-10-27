@@ -219,8 +219,56 @@ impl Dataset {
         }
     }
 
-    pub fn group_rows(&self, field_index: usize, aggregator: FieldAggregator) -> Map {
-        todo!()
+    pub fn group_rows(
+        &self,
+        group_field_index: usize,
+        aggregate_field_index: usize,
+        aggregator: FieldAggregator,
+    ) -> Array {
+        let group_column = self.df.get_columns()[group_field_index].name();
+        let agg_column = self.df.get_columns()[aggregate_field_index].name();
+
+        let lazy_df = self.df.clone().lazy();
+
+        let aggregated_df = match aggregator {
+            FieldAggregator::Count => lazy_df
+                .group_by([col(group_column.clone())])
+                .agg([col(agg_column.clone()).count()]),
+            FieldAggregator::Min => lazy_df
+                .group_by([col(group_column.clone())])
+                .agg([col(agg_column.clone()).min()]),
+            FieldAggregator::Max => lazy_df
+                .group_by([col(group_column.clone())])
+                .agg([col(agg_column.clone()).max()]),
+            FieldAggregator::Sum => lazy_df
+                .group_by([col(group_column.clone())])
+                .agg([col(agg_column.clone()).sum()]),
+            FieldAggregator::Mean => lazy_df
+                .group_by([col(group_column.clone())])
+                .agg([col(agg_column.clone()).mean()]),
+        }
+        .collect()
+        .unwrap();
+
+        let grouped_values_js = Array::new();
+        let aggregated_values_js = Array::new();
+
+        let grouped_values = aggregated_df.column(group_column).unwrap();
+        let aggregated_values = aggregated_df.column(agg_column).unwrap();
+
+        for opt_val in grouped_values.iter() {
+            grouped_values_js.push(&any_value_to_js_value(opt_val));
+        }
+
+        for opt_val in aggregated_values.iter() {
+            aggregated_values_js.push(&any_value_to_js_value(opt_val));
+        }
+
+        let result = Array::new();
+        result.push(&grouped_values_js);
+        result.push(&aggregated_values_js);
+
+        result
     }
 
     pub fn distinct_values(&self, field_index: usize, max_count: usize) -> Option<Array> {

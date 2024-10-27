@@ -67,11 +67,12 @@ export class Dataset {
    */
   aggregate_rows(indexes: Array<any>, aggregator: FieldAggregator): any;
   /**
-   * @param {number} field_index
+   * @param {number} group_field_index
+   * @param {number} aggregate_field_index
    * @param {FieldAggregator} aggregator
-   * @returns {Map<any, any>}
+   * @returns {Array<any>}
    */
-  group_rows(field_index: number, aggregator: FieldAggregator): Map<any, any>;
+  group_rows(group_field_index: number, aggregate_field_index: number, aggregator: FieldAggregator): Array<any>;
   /**
    * @param {number} field_index
    * @param {number} max_count

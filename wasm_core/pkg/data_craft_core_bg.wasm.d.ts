@@ -13,7 +13,7 @@ export function dataset_rows_count(a: number): number;
 export function dataset_export_rows(a: number, b: number): number;
 export function dataset_slice(a: number, b: number, c: number): number;
 export function dataset_aggregate_rows(a: number, b: number, c: number): number;
-export function dataset_group_rows(a: number, b: number, c: number): number;
+export function dataset_group_rows(a: number, b: number, c: number, d: number): number;
 export function dataset_distinct_values(a: number, b: number, c: number): number;
 export function dataset_filter_values(a: number, b: number, c: number): number;
 export function dataset_add_row(a: number, b: number): void;
