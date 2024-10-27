@@ -18,12 +18,13 @@
         <div
           class="card flex flex-col grow absolute w-full justify-center gap-20"
         >
-        
-        <div v-for="chart in charts" class="card w-full">
+        <h1>Сделанные:</h1>
+        <div v-for="chart in charts_real" class="card w-full">
           <Chart v-if="chart.type=='bar'||chart.type=='line' " :type="chart.type" :data="chart.data" :options="barChartOptions" />
           <Chart v-if="chart.type=='pie'" :type="chart.type" :data="chart.data" :options="pieChartOptions" />
           <Chart v-if="chart.type=='radar'" :type="chart.type" :data="chart.data" :options="radarChartOptions" />
         </div>
+        <h1>Примеры:</h1>
           <div class="card w-full">
             <Chart type="bar" :data="ChartData1" :options="barChartOptions" />
           </div>
@@ -39,8 +40,7 @@
           <div class="card w-full">
             <Chart type="bar" :data="ChartData5" :options="barChartOptions" />
           </div>
-
-          <div class="card w-full">
+          <div class="card h-60 w-60">
             <Chart type="pie" :data="ChartData1" :options="pieChartOptions" />
           </div>
           <div class="card w-full">
@@ -53,7 +53,7 @@
             <Chart type="pie" :data="ChartData5" :options="pieChartOptions" />
           </div>
 
-          <div class="card w-full">
+          <div class="card w-60 h-60">
             <Chart
               type="radar"
               :data="ChartData1"
@@ -103,10 +103,6 @@ import MainContainer from "../components/core/MainContainer.vue";
 import Toolbar from "../components/core/Navbar.vue";
 
 const barChartOptions = ref();
-const finalExample = ref(
-  {labels: ["Задача", "Подзадача", "Дефект", "История", "Эпик"],
-  data: [238, 4510, 4485, 1006, 3],
-})
 const data_example_for_chart1 = ref({
   name: "Количество задач по типу",
   labels: ["Задача", "Подзадача", "Дефект", "История", "Эпик"],
@@ -151,22 +147,19 @@ const data_example_for_chart5 = ref({
   labels: ["Низкий", "Средний", "Высокий", "Критический"],
   data: [1207, 8200, 2215, 768],
 });
-const finalParser = (data: {
-  labels: string[];
-  data: number[];
-}) => {
+const finalParser = (data: any[]) => {
   return {
-    labels: data.labels,
+    labels: data[0],
     datasets: [
       {
-        data: data.data,
+        data: data[1],
         backgroundColor: [
-          "rgba(218, 225, 249, 0.8)",
-          "rgba(235, 237, 240, 0.8)",
-          "rgb(182, 194, 201, 0.8)",
-          "rgba(200, 236, 121, 0.8)",
-          "rgba(186, 230, 251, 0.8)",
-          "rgba(176, 182, 240, 0.8)",
+          "rgba(218, 225, 249, 1)",
+          "rgba(235, 237, 240, 1)",
+          "rgb(182, 194, 201, 1)",
+          "rgba(200, 236, 121, 1)",
+          "rgba(186, 230, 251, 1)",
+          "rgba(176, 182, 240, 1)",
         ],
         borderColor: [
           "rgba(218, 225, 249, 1)",
@@ -176,7 +169,7 @@ const finalParser = (data: {
           "rgba(186, 230, 251, 1)",
           "rgba(176, 182, 240, 1)",
         ],
-        borderWidth: 1,
+        borderWidth: 4,
       },
     ],
   };
@@ -218,8 +211,8 @@ const setChartComboData = (data: {
   labels: string[];
   datasets: { label: string; data: number[]; type: string; color: string }[];
 }) => {
-  const documentStyle = getComputedStyle(document.documentElement);
-  const textColor = documentStyle.getPropertyValue("--p-text-color");
+  // const documentStyle = getComputedStyle(document.documentElement);
+  // const textColor = documentStyle.getPropertyValue("--p-text-color");
   let datasets = [];
   for (let i = 0; i < data.datasets.length; i++) {
     datasets.push({
@@ -379,15 +372,27 @@ watchEffect(() => {
 });
 const router = useRouter();
 
+const finalExample = ref(
+  [["Задача", "Подзадача", "Дефект", "История", "Эпик"],
+  [238, 4510, 4485, 1006, 3],
+  "pie"
+])
 const ChartEx1 = ref()
-const ChartEx2 = ref()
 const ChartData1 = ref();
 const ChartData2 = ref();
 const ChartData3 = ref();
 const ChartData4 = ref();
 const ChartData5 = ref();
-const charts = ref([{data: ChartEx1, type: "line"}, {data: ChartData2, type: "radar"},]);
+const charts = ref([finalExample]);
+let charts_real = ref()
 onMounted(() => {
+  let arr = []
+  for (let i = 0;i<charts.value.length;i++) {
+    arr.push({data: finalParser(charts.value[i].value), type: charts.value[i].value[2]});
+  }
+  charts_real.value = arr;
+  console.log(charts_real);
+
   ChartEx1.value = finalParser(finalExample.value)
   ChartData1.value = setChartData(data_example_for_chart1.value);
   ChartData2.value = setChartData(data_example_for_chart2.value);
