@@ -5,14 +5,23 @@
         {
           label: 'Таблицы',
           command: () => {
-            router.push({ name: 'datasets_list' });
+            router.push({ name: 'dataset_list' });
           },
         },
         { label: 'Название датасета' },
         { label: 'Дашборды' },
       ]"
     />
-    <Toolbar />
+    <!-- <Toolbar /> -->
+    <div>
+    <Button label="Добавить график" @click="showDialog = true" />
+    <FilterDialog 
+      :items="inputArray" 
+      :visible="showDialog" 
+      @update:visible="showDialog = $event" 
+      @save="handleSave"
+    />
+  </div>
     <ContentContainer>
       <div class="flex-grow block overflow-scroll relative">
         <div
@@ -94,7 +103,8 @@ import { useRouter } from "vue-router";
 import ContentContainer from "../components/core/ContentContainer.vue";
 import HeaderContainer from "../components/core/HeaderComponent.vue";
 import MainContainer from "../components/core/MainContainer.vue";
-import Toolbar from "../components/core/Navbar.vue";
+import FilterDialog from "../components/dialogs/FilterDialog.vue"
+import Button from "primevue/button";
 
 const barChartOptions = ref();
 const data_example_for_chart1 = ref({
@@ -437,4 +447,13 @@ onMounted(() => {
   pieChartOptions.value = setPieChartOptions();
   radarChartOptions.value = setRadarChartOptions();
 });
+
+const showDialog = ref(false);
+const inputArray = ref(['Item 1', 'Item 2', 'Item 3']); // Example items
+
+function handleSave(checkedItems: any) {
+  console.log('Checked items:', checkedItems);
+  // Additional save functionality here
+}
+
 </script>
