@@ -27,6 +27,7 @@ impl Dataset {
 
         let df = CsvReadOptions::default()
             .with_parse_options(CsvParseOptions {
+                separator: b';',
                 truncate_ragged_lines: true,
                 try_parse_dates: true,
                 ..Default::default()
