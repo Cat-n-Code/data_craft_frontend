@@ -79,20 +79,6 @@
           <div class="card w-full">
             <Chart type="bar" :data="ChartData3" :options="barChartOptions" />
           </div>
-          <div class="card w-full">
-            <Chart
-              type="radar"
-              :data="chartDataRadar"
-              :options="radarChartOptions"
-            />
-          </div>
-          <div class="card w-full">
-            <Chart
-              type="bar"
-              :data="chartDataCombo"
-              :options="chartOptionsCombo"
-            />
-          </div>
         </div>
       </div>
     </ContentContainer>
@@ -167,20 +153,22 @@ const setChartData = (data: {
       {
         label: data.name,
         data: data.data,
-        // backgroundColor: [
-        //   "rgba(249, 115, 22, 0.2)",
-        //   "rgba(6, 182, 212, 0.2)",
-        //   "rgb(107, 114, 128, 0.2)",
-        //   "rgba(139, 92, 246 0.2)",
-        //   "rgba(139, 92, 246 0.4)",
-        // ],
-        // borderColor: [
-        //   "rgb(249, 115, 22)",
-        //   "rgb(6, 182, 212)",
-        //   "rgb(107, 114, 128)",
-        //   "rgb(139, 92, 246)",
-        //   "rgb(139, 92, 246)",
-        // ],
+        backgroundColor: [
+          "rgba(218, 225, 249, 0.8)",
+          "rgba(235, 237, 240, 0.8)",
+          "rgb(182, 194, 201, 0.8)",
+          "rgba(200, 236, 121, 0.8)",
+          "rgba(186, 230, 251, 0.8)",
+          "rgba(176, 182, 240, 0.8)",
+        ],
+        borderColor: [
+          "rgba(218, 225, 249, 1)",
+          "rgba(235, 237, 240, 1)",
+          "rgb(182, 194, 201, 1)",
+          "rgba(200, 236, 121, 1)",
+          "rgba(186, 230, 251, 1)",
+          "rgba(176, 182, 240, 1)",
+        ],
         borderWidth: 1,
       },
     ],
@@ -208,20 +196,22 @@ const setChartComboData = (data: {
       // pointHoverBorderColor: documentStyle.getPropertyValue(
       //   data.datasets[i].color
       // ),
-      // backgroundColor: [
-      //   "rgba(249, 115, 22, 0.2)",
-      //   "rgba(6, 182, 212, 0.2)",
-      //   "rgb(107, 114, 128, 0.2)",
-      //   "rgba(139, 92, 246 0.2)",
-      //   "rgba(139, 92, 246 0.4)",
-      // ],
-      // borderColor: [
-      //   "rgb(249, 115, 22)",
-      //   "rgb(6, 182, 212)",
-      //   "rgb(107, 114, 128)",
-      //   "rgb(139, 92, 246)",
-      //   "rgb(139, 92, 246)",
-      // ],
+        backgroundColor: [
+          "rgba(218, 225, 249, 0.8)",
+          "rgba(235, 237, 240, 0.8)",
+          "rgb(182, 194, 201, 0.8)",
+          "rgba(200, 236, 121, 0.8)",
+          "rgba(186, 230, 251, 0.8)",
+          "rgba(176, 182, 240, 0.8)",
+        ],
+        borderColor: [
+          "rgba(218, 225, 249, 1)",
+          "rgba(235, 237, 240, 1)",
+          "rgb(182, 194, 201, 1)",
+          "rgba(200, 236, 121, 1)",
+          "rgba(186, 230, 251, 1)",
+          "rgba(176, 182, 240, 1)",
+        ],
       borderWidth: 2,
     });
   }
