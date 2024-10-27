@@ -8,7 +8,7 @@
           <input 
             type="checkbox" 
             v-model="checkedItems" 
-            :value="item" 
+            :value="index" 
             class="mr-2"
           />
           <label>{{ item }}</label>
