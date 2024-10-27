@@ -5,7 +5,7 @@
         {
           label: 'Таблицы',
           command: () => {
-            router.push({ name: 'dataset_list' });
+            router.push({ name: 'datasets_list' });
           },
         },
         { label: 'Название датасета' },
@@ -94,7 +94,7 @@ import { useRouter } from "vue-router";
 import ContentContainer from "../components/core/ContentContainer.vue";
 import HeaderContainer from "../components/core/HeaderComponent.vue";
 import MainContainer from "../components/core/MainContainer.vue";
-import Toolbar from "../components/core/ToolbarComponent.vue";
+import Toolbar from "../components/core/Navbar.vue";
 
 const barChartOptions = ref();
 const data_example_for_chart1 = ref({

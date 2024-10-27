@@ -12,3 +12,7 @@
 body {
   font-family: "Montserrat";
 }
+
+.ai-gradient {
+  background: linear-gradient(to right, #c8ec79, #bae6fb);
+}
