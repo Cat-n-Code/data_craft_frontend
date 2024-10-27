@@ -1,53 +1,83 @@
 <template>
-  <div v-if="visible" class="fixed inset-0 flex items-center justify-center z-50">
-    <div class="bg-black bg-opacity-50 absolute inset-0"></div>
-    <div class="bg-white p-6 rounded-lg w-80 relative z-10">
-      <h2 class="text-lg font-semibold">Выберете фильтр</h2>
-      <div class="mt-4">
-        <div v-for="(item, index) in items" :key="index" class="flex items-center py-2">
-          <input 
-            type="checkbox" 
-            v-model="checkedItems" 
-            :value="item" 
-            class="mr-2"
-          />
-          <label>{{ item }}</label>
-        </div>
-      </div>
-      <div class="mt-4 flex justify-end space-x-2">
-        <Button label="Save" @click="save" />
-        <Button label="Close" @click="hideDialog" />
-      </div>
+  <Dialog v-model:visible="visible" header="Создание диаграммы" closable modal>
+    <div class="flex flex-col gap-4">
+      <FloatLabel variant="on">
+        <Select
+          input-id="diagram_type"
+          :options="['Круговая', 'Радар', 'Гистограмма', 'Столбчатая']"
+          v-model="diagramType"
+        ></Select>
+        <label for="diagram_type">Тип диаграммы</label>
+      </FloatLabel>
+
+      <FloatLabel variant="on">
+        <Select
+          input-id="x_field"
+          :options="store.fields?.map((f) => f.name)"
+          :model-value="store.fields[xFieldIndex].name"
+          @update:model-value="
+        (val) => xFieldIndex = [...store.fields?.entries()!].find(([_, f]) => f.name == val)![0]
+      "
+        />
+        <label for="x_field">Ось X</label>
+      </FloatLabel>
+
+      <FloatLabel variant="on">
+        <Select
+          input-id="y_field"
+          :options="store.fields?.map((f) => f.name)"
+          :model-value="store.fields[yFieldIndex].name"
+          @update:model-value="
+        (val) => yFieldIndex = [...store.fields?.entries()!].find(([_, f]) => f.name == val)![0]
+      "
+        />
+        <label for="y_field">Ось Y</label>
+      </FloatLabel>
     </div>
-  </div>
+
+    <div class="mt-4 flex justify-end space-x-2">
+      <Button label="Сохранить" @click="save" />
+    </div>
+  </Dialog>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { FieldAggregator } from "data_craft_core";
+import Button from "primevue/button";
 import Dialog from "primevue/dialog";
+import Select from "primevue/select";
+import { defineEmits, ref } from "vue";
+import { useActiveDatasetStore } from "../../stores/active-dataset-store";
+import { DiagramType, useDashboardStore } from "../../stores/dashboard-store";
 
-import Button from 'primevue/button';
-import { ref, defineProps, defineEmits } from 'vue';
-defineProps({
-  items: {
-    type: Array,
-    required: true,
-  },
-  visible: {
-    type: Boolean,
-    required: true,
-  },
-});
+const store = useActiveDatasetStore();
+const dashboardStore = useDashboardStore();
+const emit = defineEmits(["update:visible", "save"]);
 
-const emit = defineEmits(['update:visible', 'save']);
+const visible = ref(false);
+const diagramType = ref<DiagramType>(DiagramType.PIE);
+const xFieldIndex = ref<number>(0);
+const yFieldIndex = ref<number>(0);
 
-const checkedItems = ref([]);
-
-function hideDialog() {
-  emit('update:visible', false);
+function show() {
+  visible.value = true;
 }
 
 function save() {
-  emit('save', checkedItems.value);
-  hideDialog();
+  visible.value = false;
+
+  let a = store.dataset!.group_rows(
+    xFieldIndex.value,
+    yFieldIndex.value,
+    FieldAggregator.Count
+  );
+
+  dashboardStore.dashboards.push({
+    type: diagramType.value,
+    xValues: a[0],
+    yValues: a[1],
+  });
 }
+
+defineExpose({ show });
 </script>

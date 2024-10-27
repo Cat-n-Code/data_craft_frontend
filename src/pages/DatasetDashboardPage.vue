@@ -13,16 +13,11 @@
       ]"
     />
     <!-- <Toolbar /> -->
-    <div>
-    <Button label="Добавить график" @click="showDialog = true" />
-    <FilterDialog 
-      :items="inputArray" 
-      :visible="showDialog" 
-      @update:visible="showDialog = $event" 
-      @save="handleSave"
-    />
-  </div>
+
     <ContentContainer>
+      <div class="flex gap-4 justify-end">
+        <Button label="Добавить график" @click="() => diagramDialog?.show()" />
+      </div>
       <div class="flex-grow block overflow-scroll relative">
         <div
           class="card flex flex-col grow absolute w-full justify-center gap-20"
@@ -92,19 +87,23 @@
       </div>
     </ContentContainer>
   </MainContainer>
+  <FilterDialog ref="diagramDialog" />
 </template>
 
 <style scoped></style>
 
 <script lang="ts" setup>
+import Button from "primevue/button";
 import Chart from "primevue/chart";
-import { onMounted, ref, watchEffect } from "vue";
+import { onMounted, ref, useTemplateRef, watchEffect } from "vue";
 import { useRouter } from "vue-router";
 import ContentContainer from "../components/core/ContentContainer.vue";
 import HeaderContainer from "../components/core/HeaderComponent.vue";
 import MainContainer from "../components/core/MainContainer.vue";
-import FilterDialog from "../components/dialogs/FilterDialog.vue"
-import Button from "primevue/button";
+import FilterDialog from "../components/dialogs/FilterDialog.vue";
+
+const diagramDialog =
+  useTemplateRef<InstanceType<typeof FilterDialog>>("diagramDialog");
 
 const barChartOptions = ref();
 const data_example_for_chart1 = ref({
@@ -206,22 +205,22 @@ const setChartComboData = (data: {
       // pointHoverBorderColor: documentStyle.getPropertyValue(
       //   data.datasets[i].color
       // ),
-        backgroundColor: [
-          "rgba(218, 225, 249, 0.8)",
-          "rgba(235, 237, 240, 0.8)",
-          "rgb(182, 194, 201, 0.8)",
-          "rgba(200, 236, 121, 0.8)",
-          "rgba(186, 230, 251, 0.8)",
-          "rgba(176, 182, 240, 0.8)",
-        ],
-        borderColor: [
-          "rgba(218, 225, 249, 1)",
-          "rgba(235, 237, 240, 1)",
-          "rgb(182, 194, 201, 1)",
-          "rgba(200, 236, 121, 1)",
-          "rgba(186, 230, 251, 1)",
-          "rgba(176, 182, 240, 1)",
-        ],
+      backgroundColor: [
+        "rgba(218, 225, 249, 0.8)",
+        "rgba(235, 237, 240, 0.8)",
+        "rgb(182, 194, 201, 0.8)",
+        "rgba(200, 236, 121, 0.8)",
+        "rgba(186, 230, 251, 0.8)",
+        "rgba(176, 182, 240, 0.8)",
+      ],
+      borderColor: [
+        "rgba(218, 225, 249, 1)",
+        "rgba(235, 237, 240, 1)",
+        "rgb(182, 194, 201, 1)",
+        "rgba(200, 236, 121, 1)",
+        "rgba(186, 230, 251, 1)",
+        "rgba(176, 182, 240, 1)",
+      ],
       borderWidth: 2,
     });
   }
@@ -449,11 +448,10 @@ onMounted(() => {
 });
 
 const showDialog = ref(false);
-const inputArray = ref(['Item 1', 'Item 2', 'Item 3']); // Example items
+const inputArray = ref(["Item 1", "Item 2", "Item 3"]); // Example items
 
 function handleSave(checkedItems: any) {
-  console.log('Checked items:', checkedItems);
+  console.log("Checked items:", checkedItems);
   // Additional save functionality here
 }
-
 </script>
