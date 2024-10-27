@@ -20,7 +20,7 @@
         >
         
         <div v-for="chart in charts" class="card w-full">
-          <Chart v-if="chart.type=='bar'" :type="chart.type" :data="chart.data" :options="barChartOptions" />
+          <Chart v-if="chart.type=='bar'||chart.type=='line' " :type="chart.type" :data="chart.data" :options="barChartOptions" />
           <Chart v-if="chart.type=='pie'" :type="chart.type" :data="chart.data" :options="pieChartOptions" />
           <Chart v-if="chart.type=='radar'" :type="chart.type" :data="chart.data" :options="radarChartOptions" />
         </div>
@@ -103,6 +103,10 @@ import MainContainer from "../components/core/MainContainer.vue";
 import Toolbar from "../components/core/Navbar.vue";
 
 const barChartOptions = ref();
+const finalExample = ref(
+  {labels: ["Задача", "Подзадача", "Дефект", "История", "Эпик"],
+  data: [238, 4510, 4485, 1006, 3],
+})
 const data_example_for_chart1 = ref({
   name: "Количество задач по типу",
   labels: ["Задача", "Подзадача", "Дефект", "История", "Эпик"],
@@ -147,7 +151,36 @@ const data_example_for_chart5 = ref({
   labels: ["Низкий", "Средний", "Высокий", "Критический"],
   data: [1207, 8200, 2215, 768],
 });
-
+const finalParser = (data: {
+  labels: string[];
+  data: number[];
+}) => {
+  return {
+    labels: data.labels,
+    datasets: [
+      {
+        data: data.data,
+        backgroundColor: [
+          "rgba(218, 225, 249, 0.8)",
+          "rgba(235, 237, 240, 0.8)",
+          "rgb(182, 194, 201, 0.8)",
+          "rgba(200, 236, 121, 0.8)",
+          "rgba(186, 230, 251, 0.8)",
+          "rgba(176, 182, 240, 0.8)",
+        ],
+        borderColor: [
+          "rgba(218, 225, 249, 1)",
+          "rgba(235, 237, 240, 1)",
+          "rgb(182, 194, 201, 1)",
+          "rgba(200, 236, 121, 1)",
+          "rgba(186, 230, 251, 1)",
+          "rgba(176, 182, 240, 1)",
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
+};
 const setChartData = (data: {
   name: string;
   labels: string[];
@@ -346,13 +379,16 @@ watchEffect(() => {
 });
 const router = useRouter();
 
+const ChartEx1 = ref()
+const ChartEx2 = ref()
 const ChartData1 = ref();
 const ChartData2 = ref();
 const ChartData3 = ref();
 const ChartData4 = ref();
 const ChartData5 = ref();
-const charts = ref([{data: ChartData1, type: "bar"}, {data: ChartData2, type: "radar"},]);
+const charts = ref([{data: ChartEx1, type: "line"}, {data: ChartData2, type: "radar"},]);
 onMounted(() => {
+  ChartEx1.value = finalParser(finalExample.value)
   ChartData1.value = setChartData(data_example_for_chart1.value);
   ChartData2.value = setChartData(data_example_for_chart2.value);
   ChartData3.value = setChartComboData(data_example_for_chart3.value);
