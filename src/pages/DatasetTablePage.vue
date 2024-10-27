@@ -172,6 +172,30 @@
         ? store.dataset?.distinct_values(popoverFieldIndex, 10) as number[]
         : []
     "
+    :min-value="
+      popoverFieldIndex != null
+        ? store.fieldsFilters.get(popoverFieldIndex)?.minValue
+        : null
+    "
+    @update:min-value="(values) => {
+      if (!store.fieldsFilters.has(popoverFieldIndex!)) {
+        store.fieldsFilters.set(popoverFieldIndex!, {});
+      }
+
+      store.fieldsFilters.get(popoverFieldIndex!)!.minValue = values ?? undefined
+    }"
+    :max-value="
+      popoverFieldIndex != null
+        ? store.fieldsFilters.get(popoverFieldIndex)?.maxValue
+        : null
+    "
+    @update:max-value="(values) => {
+      if (!store.fieldsFilters.has(popoverFieldIndex!)) {
+        store.fieldsFilters.set(popoverFieldIndex!, {});
+      }
+
+      store.fieldsFilters.get(popoverFieldIndex!)!.maxValue = values ?? undefined
+    }"
     @hide="() => (popoverFieldIndex = null)"
   />
   <TextFieldPopover
@@ -181,6 +205,30 @@
         ? store.dataset?.distinct_values(popoverFieldIndex, 10) as string[]
         : []
     "
+    :pattern="
+      popoverFieldIndex != null
+        ? store.fieldsFilters.get(popoverFieldIndex)?.pattern
+        : null
+    "
+    @update:pattern="(pattern) => {
+      if (!store.fieldsFilters.has(popoverFieldIndex!)) {
+        store.fieldsFilters.set(popoverFieldIndex!, {});
+      }
+
+      store.fieldsFilters.get(popoverFieldIndex!)!.pattern = pattern ?? undefined
+    }"
+    :selected-values="
+      popoverFieldIndex != null
+        ? store.fieldsFilters.get(popoverFieldIndex)?.values
+        : null
+    "
+    @update:selected-values="(values) => {
+      if (!store.fieldsFilters.has(popoverFieldIndex!)) {
+        store.fieldsFilters.set(popoverFieldIndex!, {});
+      }
+
+      store.fieldsFilters.get(popoverFieldIndex!)!.values = values as any[] ?? null
+    }"
     @hide="() => (popoverFieldIndex = null)"
   />
 </template>
@@ -227,7 +275,6 @@ const rowsOffset = ref(0);
 const rowsLimit = ref(10);
 const data: Ref<any[][] | null> = ref(null);
 const selectedCols: Reactive<{ [key: number]: boolean }> = reactive({});
-const fieldsStates = reactive({});
 
 const sumValue: Ref<number | null> = ref(null);
 const maxValue: Ref<number | null> = ref(null);
@@ -241,14 +288,14 @@ watchEffect(() => {
 });
 
 watchEffect(() => {
-  if (store.dataset == null) {
+  if (store.filteredDataset == null) {
     data.value = null;
     return;
   }
-  totalRows.value = store.dataset.rows_count();
-  data.value = store.dataset.slice(
+  totalRows.value = store.filteredDataset.rows_count();
+  data.value = store.filteredDataset.slice(
     rowsOffset.value ?? 0,
-    rowsOffset.value + rowsLimit.value ?? 0
+    rowsOffset.value + rowsLimit.value
   );
 });
 

@@ -60,6 +60,33 @@ pub enum FieldAggregator {
     Mean,
 }
 
+#[wasm_bindgen(getter_with_clone)]
+#[derive(Clone)]
+pub struct FieldFilter {
+    pub min_value: Option<f64>,
+    pub max_value: Option<f64>,
+    pub values: Vec<String>,
+    pub pattern: String,
+}
+
+#[wasm_bindgen]
+impl FieldFilter {
+    #[wasm_bindgen(constructor)]
+    pub fn new(
+        min_value: Option<f64>,
+        max_value: Option<f64>,
+        values: Vec<String>,
+        pattern: String,
+    ) -> Self {
+        Self {
+            min_value,
+            max_value,
+            values,
+            pattern,
+        }
+    }
+}
+
 #[wasm_bindgen]
 #[derive(Clone)]
 pub struct FieldInfo {

@@ -47,58 +47,7 @@ function _assertBoolean(n) {
     }
 }
 
-export function data_craft_init() {
-    wasm.data_craft_init();
-}
-
 let WASM_VECTOR_LEN = 0;
-
-function passArray8ToWasm0(arg, malloc) {
-    const ptr = malloc(arg.length * 1, 1) >>> 0;
-    getUint8ArrayMemory0().set(arg, ptr / 1);
-    WASM_VECTOR_LEN = arg.length;
-    return ptr;
-}
-
-function takeFromExternrefTable0(idx) {
-    const value = wasm.__wbindgen_export_0.get(idx);
-    wasm.__externref_table_dealloc(idx);
-    return value;
-}
-
-function getArrayJsValueFromWasm0(ptr, len) {
-    ptr = ptr >>> 0;
-    const mem = getDataViewMemory0();
-    const result = [];
-    for (let i = ptr; i < ptr + 4 * len; i += 4) {
-        result.push(wasm.__wbindgen_export_0.get(mem.getUint32(i, true)));
-    }
-    wasm.__externref_drop_slice(ptr, len);
-    return result;
-}
-
-function _assertClass(instance, klass) {
-    if (!(instance instanceof klass)) {
-        throw new Error(`expected instance of ${klass.name}`);
-    }
-    return instance.ptr;
-}
-
-function logError(f, args) {
-    try {
-        return f.apply(this, args);
-    } catch (e) {
-        let error = (function () {
-            try {
-                return e instanceof Error ? `${e.message}\n\nStack:\n${e.stack}` : e.toString();
-            } catch(_) {
-                return "<failed to stringify thrown value>";
-            }
-        }());
-        console.error("wasm-bindgen: imported JS function that was not marked as `catch` threw an error:", error);
-        throw e;
-    }
-}
 
 const lTextEncoder = typeof TextEncoder === 'undefined' ? (0, module.require)('util').TextEncoder : TextEncoder;
 
@@ -158,10 +107,136 @@ function passStringToWasm0(arg, malloc, realloc) {
     return ptr;
 }
 
+function debugString(val) {
+    // primitive types
+    const type = typeof val;
+    if (type == 'number' || type == 'boolean' || val == null) {
+        return  `${val}`;
+    }
+    if (type == 'string') {
+        return `"${val}"`;
+    }
+    if (type == 'symbol') {
+        const description = val.description;
+        if (description == null) {
+            return 'Symbol';
+        } else {
+            return `Symbol(${description})`;
+        }
+    }
+    if (type == 'function') {
+        const name = val.name;
+        if (typeof name == 'string' && name.length > 0) {
+            return `Function(${name})`;
+        } else {
+            return 'Function';
+        }
+    }
+    // objects
+    if (Array.isArray(val)) {
+        const length = val.length;
+        let debug = '[';
+        if (length > 0) {
+            debug += debugString(val[0]);
+        }
+        for(let i = 1; i < length; i++) {
+            debug += ', ' + debugString(val[i]);
+        }
+        debug += ']';
+        return debug;
+    }
+    // Test for built-in
+    const builtInMatches = /\[object ([^\]]+)\]/.exec(toString.call(val));
+    let className;
+    if (builtInMatches.length > 1) {
+        className = builtInMatches[1];
+    } else {
+        // Failed to match the standard '[object ClassName]'
+        return toString.call(val);
+    }
+    if (className == 'Object') {
+        // we're a user defined class or Object
+        // JSON.stringify avoids problems with cycles, and is generally much
+        // easier than looping through ownProperties of `val`.
+        try {
+            return 'Object(' + JSON.stringify(val) + ')';
+        } catch (_) {
+            return 'Object';
+        }
+    }
+    // errors
+    if (val instanceof Error) {
+        return `${val.name}: ${val.message}\n${val.stack}`;
+    }
+    // TODO we could test for more things here, like `Set`s and `Map`s.
+    return className;
+}
+
+export function data_craft_init() {
+    wasm.data_craft_init();
+}
+
+function passArray8ToWasm0(arg, malloc) {
+    const ptr = malloc(arg.length * 1, 1) >>> 0;
+    getUint8ArrayMemory0().set(arg, ptr / 1);
+    WASM_VECTOR_LEN = arg.length;
+    return ptr;
+}
+
+function takeFromExternrefTable0(idx) {
+    const value = wasm.__wbindgen_export_2.get(idx);
+    wasm.__externref_table_dealloc(idx);
+    return value;
+}
+
+function getArrayJsValueFromWasm0(ptr, len) {
+    ptr = ptr >>> 0;
+    const mem = getDataViewMemory0();
+    const result = [];
+    for (let i = ptr; i < ptr + 4 * len; i += 4) {
+        result.push(wasm.__wbindgen_export_2.get(mem.getUint32(i, true)));
+    }
+    wasm.__externref_drop_slice(ptr, len);
+    return result;
+}
+
+function _assertClass(instance, klass) {
+    if (!(instance instanceof klass)) {
+        throw new Error(`expected instance of ${klass.name}`);
+    }
+    return instance.ptr;
+}
+
 function addToExternrefTable0(obj) {
     const idx = wasm.__externref_table_alloc();
-    wasm.__wbindgen_export_0.set(idx, obj);
+    wasm.__wbindgen_export_2.set(idx, obj);
     return idx;
+}
+
+function passArrayJsValueToWasm0(array, malloc) {
+    const ptr = malloc(array.length * 4, 4) >>> 0;
+    const mem = getDataViewMemory0();
+    for (let i = 0; i < array.length; i++) {
+        mem.setUint32(ptr + 4 * i, addToExternrefTable0(array[i]), true);
+    }
+    WASM_VECTOR_LEN = array.length;
+    return ptr;
+}
+
+function logError(f, args) {
+    try {
+        return f.apply(this, args);
+    } catch (e) {
+        let error = (function () {
+            try {
+                return e instanceof Error ? `${e.message}\n\nStack:\n${e.stack}` : e.toString();
+            } catch(_) {
+                return "<failed to stringify thrown value>";
+            }
+        }());
+        console.error("wasm-bindgen: imported JS function that was not marked as `catch` threw an error:", error);
+        throw e;
+    }
 }
 
 function handleError(f, args) {
@@ -288,6 +363,16 @@ export class Dataset {
         return ret >>> 0;
     }
     /**
+     * @param {Array<any>} rows
+     * @returns {Array<any>}
+     */
+    export_rows(rows) {
+        if (this.__wbg_ptr == 0) throw new Error('Attempt to use a moved value');
+        _assertNum(this.__wbg_ptr);
+        const ret = wasm.dataset_export_rows(this.__wbg_ptr, rows);
+        return ret;
+    }
+    /**
      * @param {number} start
      * @param {number} end
      * @returns {Array<any>}
@@ -314,6 +399,19 @@ export class Dataset {
     }
     /**
      * @param {number} field_index
+     * @param {FieldAggregator} aggregator
+     * @returns {Map<any, any>}
+     */
+    group_rows(field_index, aggregator) {
+        if (this.__wbg_ptr == 0) throw new Error('Attempt to use a moved value');
+        _assertNum(this.__wbg_ptr);
+        _assertNum(field_index);
+        _assertNum(aggregator);
+        const ret = wasm.dataset_group_rows(this.__wbg_ptr, field_index, aggregator);
+        return ret;
+    }
+    /**
+     * @param {number} field_index
      * @param {number} max_count
      * @returns {Array<any> | undefined}
      */
@@ -324,6 +422,18 @@ export class Dataset {
         _assertNum(max_count);
         const ret = wasm.dataset_distinct_values(this.__wbg_ptr, field_index, max_count);
         return ret;
+    }
+    /**
+     * @param {(FieldFilter)[]} filters
+     * @returns {Dataset}
+     */
+    filter_values(filters) {
+        if (this.__wbg_ptr == 0) throw new Error('Attempt to use a moved value');
+        _assertNum(this.__wbg_ptr);
+        const ptr0 = passArrayJsValueToWasm0(filters, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.dataset_filter_values(this.__wbg_ptr, ptr0, len0);
+        return Dataset.__wrap(ret);
     }
     /**
      * @param {Array<any>} data
@@ -361,6 +471,142 @@ export class Dataset {
         if (this.__wbg_ptr == 0) throw new Error('Attempt to use a moved value');
         _assertNum(this.__wbg_ptr);
         wasm.dataset_remove_rows(this.__wbg_ptr, indexes);
+    }
+}
+
+const FieldFilterFinalization = (typeof FinalizationRegistry === 'undefined')
+    ? { register: () => {}, unregister: () => {} }
+    : new FinalizationRegistry(ptr => wasm.__wbg_fieldfilter_free(ptr >>> 0, 1));
+
+export class FieldFilter {
+
+    static __unwrap(jsValue) {
+        if (!(jsValue instanceof FieldFilter)) {
+            return 0;
+        }
+        return jsValue.__destroy_into_raw();
+    }
+
+    __destroy_into_raw() {
+        const ptr = this.__wbg_ptr;
+        this.__wbg_ptr = 0;
+        FieldFilterFinalization.unregister(this);
+        return ptr;
+    }
+
+    free() {
+        const ptr = this.__destroy_into_raw();
+        wasm.__wbg_fieldfilter_free(ptr, 0);
+    }
+    /**
+     * @returns {number | undefined}
+     */
+    get min_value() {
+        if (this.__wbg_ptr == 0) throw new Error('Attempt to use a moved value');
+        _assertNum(this.__wbg_ptr);
+        const ret = wasm.__wbg_get_fieldfilter_min_value(this.__wbg_ptr);
+        return ret[0] === 0 ? undefined : ret[1];
+    }
+    /**
+     * @param {number | undefined} [arg0]
+     */
+    set min_value(arg0) {
+        if (this.__wbg_ptr == 0) throw new Error('Attempt to use a moved value');
+        _assertNum(this.__wbg_ptr);
+        if (!isLikeNone(arg0)) {
+            _assertNum(arg0);
+        }
+        wasm.__wbg_set_fieldfilter_min_value(this.__wbg_ptr, !isLikeNone(arg0), isLikeNone(arg0) ? 0 : arg0);
+    }
+    /**
+     * @returns {number | undefined}
+     */
+    get max_value() {
+        if (this.__wbg_ptr == 0) throw new Error('Attempt to use a moved value');
+        _assertNum(this.__wbg_ptr);
+        const ret = wasm.__wbg_get_fieldfilter_max_value(this.__wbg_ptr);
+        return ret[0] === 0 ? undefined : ret[1];
+    }
+    /**
+     * @param {number | undefined} [arg0]
+     */
+    set max_value(arg0) {
+        if (this.__wbg_ptr == 0) throw new Error('Attempt to use a moved value');
+        _assertNum(this.__wbg_ptr);
+        if (!isLikeNone(arg0)) {
+            _assertNum(arg0);
+        }
+        wasm.__wbg_set_fieldfilter_max_value(this.__wbg_ptr, !isLikeNone(arg0), isLikeNone(arg0) ? 0 : arg0);
+    }
+    /**
+     * @returns {(string)[]}
+     */
+    get values() {
+        if (this.__wbg_ptr == 0) throw new Error('Attempt to use a moved value');
+        _assertNum(this.__wbg_ptr);
+        const ret = wasm.__wbg_get_fieldfilter_values(this.__wbg_ptr);
+        var v1 = getArrayJsValueFromWasm0(ret[0], ret[1]).slice();
+        wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
+        return v1;
+    }
+    /**
+     * @param {(string)[]} arg0
+     */
+    set values(arg0) {
+        if (this.__wbg_ptr == 0) throw new Error('Attempt to use a moved value');
+        _assertNum(this.__wbg_ptr);
+        const ptr0 = passArrayJsValueToWasm0(arg0, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        wasm.__wbg_set_fieldfilter_values(this.__wbg_ptr, ptr0, len0);
+    }
+    /**
+     * @returns {string}
+     */
+    get pattern() {
+        let deferred1_0;
+        let deferred1_1;
+        try {
+            if (this.__wbg_ptr == 0) throw new Error('Attempt to use a moved value');
+            _assertNum(this.__wbg_ptr);
+            const ret = wasm.__wbg_get_fieldfilter_pattern(this.__wbg_ptr);
+            deferred1_0 = ret[0];
+            deferred1_1 = ret[1];
+            return getStringFromWasm0(ret[0], ret[1]);
+        } finally {
+            wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+        }
+    }
+    /**
+     * @param {string} arg0
+     */
+    set pattern(arg0) {
+        if (this.__wbg_ptr == 0) throw new Error('Attempt to use a moved value');
+        _assertNum(this.__wbg_ptr);
+        const ptr0 = passStringToWasm0(arg0, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        wasm.__wbg_set_fieldfilter_pattern(this.__wbg_ptr, ptr0, len0);
+    }
+    /**
+     * @param {number | undefined} min_value
+     * @param {number | undefined} max_value
+     * @param {(string)[]} values
+     * @param {string} pattern
+     */
+    constructor(min_value, max_value, values, pattern) {
+        if (!isLikeNone(min_value)) {
+            _assertNum(min_value);
+        }
+        if (!isLikeNone(max_value)) {
+            _assertNum(max_value);
+        }
+        const ptr0 = passArrayJsValueToWasm0(values, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(pattern, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.fieldfilter_new(!isLikeNone(min_value), isLikeNone(min_value) ? 0 : min_value, !isLikeNone(max_value), isLikeNone(max_value) ? 0 : max_value, ptr0, len0, ptr1, len1);
+        this.__wbg_ptr = ret >>> 0;
+        FieldFilterFinalization.register(this, this.__wbg_ptr, this);
+        return this;
     }
 }
 
@@ -476,6 +722,12 @@ export function __wbindgen_bigint_from_u64(arg0) {
 
 export function __wbg_fieldinfo_new() { return logError(function (arg0) {
     const ret = FieldInfo.__wrap(arg0);
+    return ret;
+}, arguments) };
+
+export function __wbg_fieldfilter_unwrap() { return logError(function (arg0) {
+    const ret = FieldFilter.__unwrap(arg0);
+    _assertNum(ret);
     return ret;
 }, arguments) };
 
@@ -653,10 +905,27 @@ export function __wbindgen_is_undefined(arg0) {
     return ret;
 };
 
+export function __wbindgen_string_get(arg0, arg1) {
+    const obj = arg1;
+    const ret = typeof(obj) === 'string' ? obj : undefined;
+    var ptr1 = isLikeNone(ret) ? 0 : passStringToWasm0(ret, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    var len1 = WASM_VECTOR_LEN;
+    getDataViewMemory0().setInt32(arg0 + 4 * 1, len1, true);
+    getDataViewMemory0().setInt32(arg0 + 4 * 0, ptr1, true);
+};
+
 export function __wbg_buffer_ccaed51a635d8a2d() { return logError(function (arg0) {
     const ret = arg0.buffer;
     return ret;
 }, arguments) };
+
+export function __wbindgen_debug_string(arg0, arg1) {
+    const ret = debugString(arg1);
+    const ptr1 = passStringToWasm0(ret, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len1 = WASM_VECTOR_LEN;
+    getDataViewMemory0().setInt32(arg0 + 4 * 1, len1, true);
+    getDataViewMemory0().setInt32(arg0 + 4 * 0, ptr1, true);
+};
 
 export function __wbindgen_throw(arg0, arg1) {
     throw new Error(getStringFromWasm0(arg0, arg1));
@@ -668,7 +937,7 @@ export function __wbindgen_memory() {
 };
 
 export function __wbindgen_init_externref_table() {
-    const table = wasm.__wbindgen_export_0;
+    const table = wasm.__wbindgen_export_2;
     const offset = table.grow(4);
     table.set(0, undefined);
     table.set(offset + 0, undefined);

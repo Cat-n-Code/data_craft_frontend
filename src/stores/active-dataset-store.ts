@@ -1,6 +1,10 @@
-import { Dataset, FieldType } from "data_craft_core";
+import {
+  Dataset,
+  FieldType,
+  FieldFilter as WasmFieldFilter,
+} from "data_craft_core";
 import { defineStore } from "pinia";
-import { computed, Ref, ref, watchEffect } from "vue";
+import { computed, reactive, Ref, ref, watchEffect } from "vue";
 import { useRoute } from "vue-router";
 import { DatasetInfo, useDatasetsStore } from "./datasets-store";
 
@@ -10,6 +14,13 @@ export interface FieldInfo {
   dataType: FieldType;
   dataTypeName: string;
   isRequired: boolean;
+}
+
+export interface FieldFilter {
+  minValue?: number;
+  maxValue?: number;
+  pattern?: string;
+  values?: any[];
 }
 
 const dataTypeNames = {
@@ -31,6 +42,37 @@ export const useActiveDatasetStore = defineStore("activeDataset", () => {
   const datasetInfo: Ref<DatasetInfo | null> = ref(null);
   const dataset: Ref<Dataset | null> = ref(null);
   const fields: Ref<FieldInfo[] | null> = ref(null);
+  const fieldsFilters = reactive<Map<number, FieldFilter>>(new Map());
+  const filteredDataset = computed(() => {
+    if (dataset.value == null) {
+      return;
+    }
+
+    if (fieldsFilters.size == 0) {
+      return dataset.value;
+    }
+
+    let filters = new Array<WasmFieldFilter>();
+    for (let i = 0; i < fields.value!.length; ++i) {
+      if (!fieldsFilters.has(i)) {
+        filters.push(new WasmFieldFilter(undefined, undefined, [], ""));
+        continue;
+      }
+
+      let f = fieldsFilters.get(i);
+
+      filters.push(
+        new WasmFieldFilter(
+          f?.minValue,
+          f?.maxValue,
+          (f?.values as string[]) ?? [],
+          f?.pattern ?? ""
+        )
+      );
+    }
+
+    return dataset.value != null ? dataset.value.filter_values(filters) : null;
+  });
 
   watchEffect(async () => {
     if (datasetId.value == null) {
@@ -70,5 +112,12 @@ export const useActiveDatasetStore = defineStore("activeDataset", () => {
     });
   });
 
-  return { datasetId, datasetInfo, dataset, fields };
+  return {
+    datasetId,
+    datasetInfo,
+    dataset,
+    filteredDataset,
+    fields,
+    fieldsFilters,
+  };
 });

@@ -50,6 +50,11 @@ export class Dataset {
    */
   rows_count(): number;
   /**
+   * @param {Array<any>} rows
+   * @returns {Array<any>}
+   */
+  export_rows(rows: Array<any>): Array<any>;
+  /**
    * @param {number} start
    * @param {number} end
    * @returns {Array<any>}
@@ -63,10 +68,21 @@ export class Dataset {
   aggregate_rows(indexes: Array<any>, aggregator: FieldAggregator): any;
   /**
    * @param {number} field_index
+   * @param {FieldAggregator} aggregator
+   * @returns {Map<any, any>}
+   */
+  group_rows(field_index: number, aggregator: FieldAggregator): Map<any, any>;
+  /**
+   * @param {number} field_index
    * @param {number} max_count
    * @returns {Array<any> | undefined}
    */
   distinct_values(field_index: number, max_count: number): Array<any> | undefined;
+  /**
+   * @param {(FieldFilter)[]} filters
+   * @returns {Dataset}
+   */
+  filter_values(filters: (FieldFilter)[]): Dataset;
   /**
    * @param {Array<any>} data
    */
@@ -85,6 +101,20 @@ export class Dataset {
    * @param {Array<any>} indexes
    */
   remove_rows(indexes: Array<any>): void;
+}
+export class FieldFilter {
+  free(): void;
+  /**
+   * @param {number | undefined} min_value
+   * @param {number | undefined} max_value
+   * @param {(string)[]} values
+   * @param {string} pattern
+   */
+  constructor(min_value: number | undefined, max_value: number | undefined, values: (string)[], pattern: string);
+  max_value?: number;
+  min_value?: number;
+  pattern: string;
+  values: (string)[];
 }
 export class FieldInfo {
   free(): void;

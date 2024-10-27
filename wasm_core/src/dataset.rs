@@ -1,16 +1,17 @@
 use std::io::Cursor;
 
-use js_sys::Array;
+use js_sys::{Array, Map};
 use polars::{
     frame::DataFrame,
     io::SerReader,
-    prelude::{CsvParseOptions, CsvReadOptions, DataType},
+    prelude::{CsvParseOptions, CsvReadOptions, DataType, NamedFrom},
+    series::Series,
 };
+use polars_lazy::prelude::*;
 use wasm_bindgen::prelude::*;
-use web_sys::console;
 
 use crate::{
-    field::{FieldAggregator, FieldInfo, FieldType},
+    field::{FieldAggregator, FieldFilter, FieldInfo, FieldType},
     utils::any_value_to_js_value,
 };
 
@@ -108,6 +109,22 @@ impl Dataset {
         self.df.height()
     }
 
+    pub fn export_rows(&self, rows: Array) -> Array {
+        let arr = Array::new();
+
+        for val in rows {
+            let i = val.as_f64().unwrap() as usize;
+            let s = &self.df[i];
+            let row = Array::new();
+            for x in s.iter() {
+                row.push(&any_value_to_js_value(x));
+            }
+            arr.push(&row);
+        }
+
+        arr
+    }
+
     pub fn slice(&self, start: usize, end: usize) -> Array {
         let rows = Array::new();
         for _ in start..end {
@@ -202,6 +219,10 @@ impl Dataset {
         }
     }
 
+    pub fn group_rows(&self, field_index: usize, aggregator: FieldAggregator) -> Map {
+        todo!()
+    }
+
     pub fn distinct_values(&self, field_index: usize, max_count: usize) -> Option<Array> {
         if let Ok(values) = self.df.get_columns()[field_index].unique() {
             let arr = Array::new();
@@ -211,6 +232,43 @@ impl Dataset {
             Some(arr)
         } else {
             None
+        }
+    }
+
+    pub fn filter_values(&self, filters: Vec<FieldFilter>) -> Dataset {
+        assert!(filters.len() == self.df.width());
+
+        let mut lazy_df = self.df.clone().lazy();
+
+        for (column, filter) in self.df.get_columns().iter().zip(&filters) {
+            let col_expr = column.name().as_str();
+
+            if let Some(min_val) = filter.min_value {
+                lazy_df = lazy_df.filter(col(col_expr).gt_eq(lit(min_val)));
+            }
+            if let Some(max_val) = filter.max_value {
+                lazy_df = lazy_df.filter(col(col_expr).lt_eq(lit(max_val)));
+            }
+
+            if !filter.values.is_empty() {
+                let values_expr = lit(Series::new("".into(), &filter.values));
+                lazy_df = lazy_df.filter(col(col_expr).is_in(values_expr));
+            }
+
+            if !filter.pattern.is_empty() {
+                lazy_df = lazy_df.filter(
+                    col(col_expr)
+                        .str()
+                        .contains(lit(filter.pattern.clone()), true),
+                );
+            }
+        }
+
+        let filtered_df = lazy_df.collect().unwrap();
+
+        Dataset {
+            fields: self.fields.clone(),
+            df: filtered_df,
         }
     }
 
