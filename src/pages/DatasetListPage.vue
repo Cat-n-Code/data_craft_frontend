@@ -5,34 +5,48 @@
       <div class="flex gap-4 justify-end">
         <Button
           label="Загрузить файл"
-          severity="contrast"
+          severity="secondary"
           outlined
           icon-pos="right"
+          @click="() => store.addFromFile()"
         >
           <template v-slot:icon>
             <IconUpload />
           </template>
         </Button>
-        <Button label="Создать пустой" severity="contrast" outlined>
+        <Button
+          label="Создать пустой"
+          severity="secondary"
+          outlined
+          @click="() => store.addEmpty()"
+        >
           <template v-slot:icon>
             <IconPlus />
           </template>
         </Button>
       </div>
-      <div class="flex-grow block overflow-scroll relative">
-        <DataTable
-          :value="datasets"
-          scrollable
-          class="absolute w-full"
-          @row-click="onRowClick"
-          selection-mode="single"
-        >
-          <Column field="number" header="#"></Column>
-          <Column field="title" header="Название"></Column>
-          <Column field="num_fields" header="Кол-во полей"></Column>
-          <Column field="num_num" header="Кол-во записей"></Column>
-        </DataTable>
-      </div>
+      <DataTable
+        :value="store.datasets"
+        scrollable
+        :loading="store.datasets == null"
+        class="h-[70vh]"
+        @row-click="
+          (ev) => router.push({ path: `/datasets/${ev.data.id}/fields` })
+        "
+        scroll-height="flex"
+        selection-mode="single"
+      >
+        <template #empty> Таблицы отсутствуют </template>
+        <Column field="id" header="#"></Column>
+        <Column field="name" header="Название"></Column>
+        <Column field="fieldsCount" header="Кол-во полей"></Column>
+        <Column field="rowsCount" header="Кол-во записей"></Column>
+        <Column align-frozen="right">
+          <template #body>
+            <IconChevronRight class="text-gray-500 float-end me-4" />
+          </template>
+        </Column>
+      </DataTable>
     </ContentContainer>
   </MainContainer>
 </template>
@@ -40,63 +54,23 @@
 <style scoped></style>
 
 <script lang="ts" setup>
-import { IconPlus, IconUpload } from "@tabler/icons-vue";
+import { IconChevronRight, IconPlus, IconUpload } from "@tabler/icons-vue";
 import Button from "primevue/button";
 import Column from "primevue/column";
 import DataTable from "primevue/datatable";
-import { ref, watchEffect } from "vue";
+import { watchEffect } from "vue";
 import { useRouter } from "vue-router";
 import ContentContainer from "../components/core/ContentContainer.vue";
 import HeaderContainer from "../components/core/HeaderComponent.vue";
 import MainContainer from "../components/core/MainContainer.vue";
+import { useDatasetsStore } from "../stores/datasets-store";
 
 const router = useRouter();
-
-const datasets = ref([
-  { number: 1, title: "Датасет 1", num_fields: 3, num_num: 3 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-  { number: 2, title: "Датасет 2", num_fields: 5, num_num: 8 },
-]);
-
-function onRowClick(rowData: any) {
-  console.log("Row clicked:", rowData);
-  router.push({ name: "dataset_columns" });
-}
+const store = useDatasetsStore();
 
 watchEffect(() => {
   document.title = "Таблицы";
+
+  store.preload();
 });
 </script>
