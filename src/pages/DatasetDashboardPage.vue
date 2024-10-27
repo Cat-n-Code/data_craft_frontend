@@ -18,6 +18,12 @@
         <div
           class="card flex flex-col grow absolute w-full justify-center gap-20"
         >
+        
+        <div v-for="chart in charts" class="card w-full">
+          <Chart v-if="chart.type=='bar'" :type="chart.type" :data="chart.data" :options="barChartOptions" />
+          <Chart v-if="chart.type=='pie'" :type="chart.type" :data="chart.data" :options="pieChartOptions" />
+          <Chart v-if="chart.type=='radar'" :type="chart.type" :data="chart.data" :options="radarChartOptions" />
+        </div>
           <div class="card w-full">
             <Chart type="bar" :data="ChartData1" :options="barChartOptions" />
           </div>
@@ -221,7 +227,6 @@ const setChartComboData = (data: {
   };
 };
 const chartDataCombo = ref();
-const chartOptionsCombo = ref();
 
 const setChartDataCombo = () => {
   const documentStyle = getComputedStyle(document.documentElement);
@@ -294,87 +299,9 @@ const setChartOptions = () => {
     },
   };
 };
-const setChartOptionsCombo = () => {
-  const documentStyle = getComputedStyle(document.documentElement);
-  const textColor = documentStyle.getPropertyValue("--p-text-color");
-  const textColorSecondary = documentStyle.getPropertyValue(
-    "--p-text-muted-color"
-  );
-  const surfaceBorder = documentStyle.getPropertyValue(
-    "--p-content-border-color"
-  );
-
-  return {
-    maintainAspectRatio: false,
-    aspectRatio: 0.6,
-    plugins: {
-      legend: {
-        labels: {
-          color: textColor,
-        },
-      },
-    },
-    scales: {
-      x: {
-        ticks: {
-          color: textColorSecondary,
-        },
-        grid: {
-          color: surfaceBorder,
-        },
-      },
-      y: {
-        ticks: {
-          color: textColorSecondary,
-        },
-        grid: {
-          color: surfaceBorder,
-        },
-      },
-    },
-  };
-};
-
-const chartDataRadar = ref();
 const pieChartOptions = ref();
 const radarChartOptions = ref();
 
-const setChartDataRadar = () => {
-  const documentStyle = getComputedStyle(document.documentElement);
-  const textColor = documentStyle.getPropertyValue("--p-text-color");
-
-  return {
-    labels: [
-      "Eating",
-      "Drinking",
-      "Sleeping",
-      "Designing",
-      "Coding",
-      "Cycling",
-      "Running",
-    ],
-    datasets: [
-      {
-        label: "My First dataset",
-        borderColor: documentStyle.getPropertyValue("--p-gray-400"),
-        pointBackgroundColor: documentStyle.getPropertyValue("--p-gray-400"),
-        pointBorderColor: documentStyle.getPropertyValue("--p-gray-400"),
-        pointHoverBackgroundColor: textColor,
-        pointHoverBorderColor: documentStyle.getPropertyValue("--p-gray-400"),
-        data: [65, 59, 90, 81, 56, 55, 40],
-      },
-      {
-        label: "My Second dataset",
-        borderColor: documentStyle.getPropertyValue("--p-pink-400"),
-        pointBackgroundColor: documentStyle.getPropertyValue("--p-pink-400"),
-        pointBorderColor: documentStyle.getPropertyValue("--p-pink-400"),
-        pointHoverBackgroundColor: textColor,
-        pointHoverBorderColor: documentStyle.getPropertyValue("--p-pink-400"),
-        data: [28, 48, 40, 19, 96, 27, 100],
-      },
-    ],
-  };
-};
 const setPieChartOptions = () => {
   const documentStyle = getComputedStyle(document.documentElement);
   const textColor = documentStyle.getPropertyValue("--p-text-color");
@@ -424,6 +351,7 @@ const ChartData2 = ref();
 const ChartData3 = ref();
 const ChartData4 = ref();
 const ChartData5 = ref();
+const charts = ref([{data: ChartData1, type: "bar"}, {data: ChartData2, type: "radar"},]);
 onMounted(() => {
   ChartData1.value = setChartData(data_example_for_chart1.value);
   ChartData2.value = setChartData(data_example_for_chart2.value);
@@ -432,8 +360,6 @@ onMounted(() => {
   ChartData5.value = setChartData(data_example_for_chart5.value);
   barChartOptions.value = setChartOptions();
   chartDataCombo.value = setChartDataCombo();
-  chartOptionsCombo.value = setChartOptionsCombo();
-  chartDataRadar.value = setChartDataRadar();
   pieChartOptions.value = setPieChartOptions();
   radarChartOptions.value = setRadarChartOptions();
 });
